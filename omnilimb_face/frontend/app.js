@@ -1355,11 +1355,12 @@
     banner.innerHTML =
       "🎭 <b>Demo</b> — 仅演示界面，未接入真实 AI（不会真正回答）。完整插件会说出你的 hermes 智能体的真实回复。 · UI demo only, not connected to a real agent.";
     var bs = banner.style;
-    bs.position = "fixed"; bs.top = "0"; bs.left = "0"; bs.right = "0"; bs.zIndex = "9999";
     bs.background = "linear-gradient(90deg,#ff66a5,#7aa2ff)"; bs.color = "#0e1018";
     bs.font = "600 13px/1.5 'Segoe UI',system-ui,Arial,sans-serif"; bs.textAlign = "center";
-    bs.padding = "7px 30px 7px 14px";
-    if (document.body) document.body.appendChild(banner);
+    bs.padding = "7px 14px"; bs.width = "100%"; bs.boxSizing = "border-box";
+    // Sit at the very top IN NORMAL FLOW (not a fixed overlay) so it pushes the
+    // page down instead of covering the header/controls beneath it.
+    if (document.body) document.body.insertBefore(banner, document.body.firstChild);
 
     // No gateway in demo mode: suppress the connection overlay and show "demo".
     setTimeout(function () {
