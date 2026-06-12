@@ -240,7 +240,11 @@
       syncRendererSelect();
     });
   }
-  if (_startupRenderer !== "Live2D") {
+  // The default renderer is Live2D. Only auto-restore a different *persisted*
+  // renderer in normal operation — the public website demo (?demo) must always
+  // open in Live2D (users can still switch to Live3D from the settings panel),
+  // so a Live3D selection left in localStorage never carries into the demo.
+  if (_startupRenderer !== "Live2D" && !new URLSearchParams(location.search).has("demo")) {
     // Live3D needs three.js — wait for the module shim before switching.
     if (_startupRenderer === "Live3D") {
       whenThreeReady(_doStartupSwitch);
