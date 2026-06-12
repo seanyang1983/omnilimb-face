@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>omnilimb-face</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <!--
+      omnilimb-face compatible front-end (reference example).
+
+      This page is a SELF-CONTAINED, dependency-free client for the plugin's
+      Open-LLM-VTuber compatible `/client-ws` WebSocket protocol. It:
+        * connects to the gateway and handles every server->client message
+          (full-text / set-model-and-conf / audio / control / error);
+        * plays the agent's synthesized audio via the Web Audio API;
+        * drives LIP-SYNC from the `audio` message's `volumes` series (each
+          element spans `slice_length` ms), synced to audio playback time;
+        * applies EXPRESSIONS from `actions.expressions` using the model's
+          `emotionMap` delivered in `set-model-and-conf`;
+        * lets you type text (text-input) and interrupt (interrupt-signal).
+
+      By default this renders a REAL Live2D model (the Mao Cubism 4 reference
+      model from Live2D's official CubismWebSamples) via pixi-live2d-display. The
+      actual model is whatever `set-model-and-conf` delivers from
+      `models/model_dict.json`. The Live2D runtimes are loaded from CDN
+      (the Cubism Core is proprietary and is NOT bundled in this repo). If those
+      runtimes or the model cannot be loaded (e.g. offline), the page falls back
+      to a dependency-free canvas-drawn PLACEHOLDER so the protocol->render loop
+      still runs. Swap the model by editing `models/model_dict.json`'s `url`.
+      The protocol layer is unchanged regardless of renderer. See
+      frontend/README.md.
+    -->
+    <header class="topbar">
+      <h1>🎭 omnilimb-face</h1>
+      <nav class="layout-switch" aria-label="版式切换" role="tablist">
+        <button class="layout-btn is-active" type="button" data-layout="cinema" aria-selected="true">剧场</button>
+        <button class="layout-btn" type="button" data-layout="solo" aria-selected="false">纯形象</button>
+      </nav>
+      <span id="conn-status" class="status status--connecting">connecting…</span>
+    </header>
+
+    <main class="stage" data-layout="cinema">
+      <div class="stage-row">
+        <canvas id="avatar" width="480" height="480" aria-label="avatar"></canvas>
+        <div class="orb-pane">
+          <canvas id="orb-canvas" width="240" height="240" aria-label="voice orb"></canvas>
+          <div class="orb-caption">声波</div>
+        </div>
+      </div>
+      <div id="subtitle" class="subtitle" aria-live="polite"></div>
+      <div id="expression-label" class="expression-label"></div>
+    </main>
+
+    <footer class="controls">
+      <form id="text-form" class="text-form" autocomplete="off">
+        <input
+          id="text-input"
+          class="text-input"
+          type="text"
+          placeholder="Type to the agent…  (Enter to send)"
+          aria-label="message to the agent"
+        />
+        <button id="send-btn" type="submit" class="btn">Send</button>
+        <button id="handsfree-btn" type="button" class="btn">🎤 免提</button>
+        <button id="ptt-btn" type="button" class="btn btn--ptt" aria-label="按住说话，松开发送" title="按住说话，松开发送">🎤</button>
+        <button id="interrupt-btn" type="button" class="btn btn--warn">
+          Interrupt
+        </button>
+        <button id="settings-btn" type="button" class="btn" title="设置" aria-label="设置">⚙</button>
+      </form>
+      <pre id="log" class="log" aria-label="event log"></pre>
+      <p class="credit" aria-label="credits">
+        Avatar uses Live2D Cubism sample data © Live2D Inc. —
+        <a href="https://www.live2d.com/en/" target="_blank" rel="noopener noreferrer">live2d.com</a>.
+        Protocol compatible with
+        <a href="https://github.com/Open-LLM-VTuber/Open-LLM-VTuber" target="_blank" rel="noopener noreferrer">Open-LLM-VTuber</a>.
+      </p>
+    </footer>
+
+    <!-- Settings modal (appearance / voice / interaction / status). Only knobs
+         the plugin owns live here; LLM/search/social/sandbox stay in hermes. -->
+    <div id="settings-modal" class="modal" hidden>
+      <div class="modal__backdrop" data-close></div>
+      <div class="modal__panel" role="dialog" aria-modal="true" aria-label="设置">
+        <header class="modal__head">
+          <h2>设置</h2>
+          <button class="modal__x" type="button" data-close aria-label="关闭">×</button>
+        </header>
+        <nav class="modal__tabs">
+          <button class="tab tab--active" type="button" data-tab="voice">语音</button>
+          <button class="tab" type="button" data-tab="persona">灵魂人格</button>
+          <button class="tab" type="button" data-tab="appearance">外观</button>
+          <button class="tab" type="button" data-tab="interaction">交互</button>
+          <button class="tab" type="button" data-tab="status">状态</button>
+        </nav>
+        <div class="modal__body">
+          <section class="pane pane--active" data-pane="voice">
+            <h3>语音转文字 (STT)</h3>
+            <div class="row">
+              <label for="stt-model">模型（准确率 / 速度·体积）</label>
+              <select id="stt-model" class="select" disabled>
+                <option value="">（STT 未启用）</option>
+              </select>
+            </div>
+            <div class="row">
+              <label for="vad-threshold">麦克风灵敏度阈值 <span id="vad-val" class="val"></span></label>
+              <input id="vad-threshold" class="range" type="range" min="0.003" max="0.05" step="0.001" />
+              <span class="hint">越小越灵敏（容易触发），越大越需要大声说话。</span>
+            </div>
+            <div class="row">
+              <label><input id="auto-mic" type="checkbox" /> 启动时自动开麦（免提）</label>
+            </div>
+            <h3>语音合成 (TTS)</h3>
+            <div class="row">
+              <label for="tts-voice">音色</label>
+              <select id="tts-voice" class="select" disabled>
+                <option value="">（TTS 未启用）</option>
+              </select>
+            </div>
+            <div class="row">
+              <label for="tts-rate">语速 <span id="tts-rate-val" class="val"></span></label>
+              <input id="tts-rate" class="range" type="range" min="-50" max="50" step="5" value="0" />
+            </div>
+          </section>
+          <section class="pane" data-pane="persona">
+            <h3>灵魂人格（VTuber 专属设定）</h3>
+            <p class="hint">
+              这是形象自己的身份/性格/说话风格，作为它的系统提示注入——
+              <b>与 hermes 本体设定相互独立</b>。改完点保存即时生效。
+            </p>
+            <div class="row">
+              <textarea id="persona-text" class="textarea" rows="8"
+                placeholder="例：你是「小马」，俏皮温暖的虚拟伙伴，说话简洁可爱、用中文…"></textarea>
+            </div>
+            <div class="row">
+              <button id="persona-save" type="button" class="btn">保存人格</button>
+              <span class="hint">保存后会用新人设重建对话（约几秒）。</span>
+            </div>
+          </section>
+          <section class="pane" data-pane="appearance">
+            <div class="row">
+              <label for="renderer-select">渲染器</label>
+              <select id="renderer-select" class="select">
+                <option value="Live2D">Live2D</option>
+                <option value="Live3D">Live3D</option>
+              </select>
+              <span class="hint">切换屏幕形象的渲染方式（默认 Live2D）。</span>
+            </div>
+            <div class="row">
+              <label for="avatar-scale">形象大小 <span id="scale-val" class="val"></span></label>
+              <input id="avatar-scale" class="range" type="range" min="0.5" max="1.6" step="0.05" value="1" />
+            </div>
+            <div class="row">
+              <label for="bg-mode">背景</label>
+              <select id="bg-mode" class="select">
+                <option value="default">默认深色</option>
+                <option value="transparent">透明</option>
+                <option value="green">绿幕</option>
+                <option value="blue">蓝幕</option>
+              </select>
+            </div>
+            <div class="row">
+              <label><input id="show-subtitle" type="checkbox" checked /> 显示字幕</label>
+            </div>
+            <div class="row">
+              <label><input id="show-log" type="checkbox" checked /> 显示事件日志</label>
+            </div>
+          </section>
+          <section class="pane" data-pane="interaction">
+            <div class="row">
+              <label><input id="bargein-toggle" type="checkbox" checked /> 实时打断（说话即打断形象）</label>
+            </div>
+            <p class="hint">思考流显示、空闲 idle 动作：规划中。</p>
+          </section>
+          <section class="pane" data-pane="status">
+            <div id="status-body" class="status-grid"></div>
+          </section>
+        </div>
+      </div>
+    </div>
+
+    <!--
+      Live2D runtimes (loaded from CDN — NOT bundled).
+
+      * live2dcubismcore.min.js  : proprietary Cubism 4/5 Core (Live2D Inc.).
+      * live2d.min.js            : Cubism 2.1 Core (for older 2.1 models).
+      * pixi.js@6                : pixi-live2d-display targets PixiJS v6.
+      * pixi-live2d-display      : the renderer that drives the model.
+
+      These are external dependencies; if they fail to load the page falls back
+      to the built-in canvas placeholder (see app.js / avatar.js). For an
+      offline / production deployment, self-host these files next to the page
+      and point the <script> src at the local copies.
+    -->
+    <script src="https://cubism.live2d.com/sdk-web/cubismcore/live2dcubismcore.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/dylanNew/live2d/webgl/Live2D/lib/live2d.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/pixi.js@6.5.10/dist/browser/pixi.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/pixi-live2d-display@0.4.0/dist/index.min.js"></script>
+
+    <!--
+      three.js + GLTFLoader + three-vrm (ES modules via import map; loaded from
+      CDN — NOT bundled). three.js r150+ removed the classic (global) example
+      builds, so GLTFLoader ships ONLY as an ES module; we therefore load the
+      whole three stack as modules and expose them on `window` so the plain-JS,
+      build-free renderers can keep using globals:
+        window.THREE        — orb-renderer.js + live3d-renderer.js (WebGL scene)
+        window.GLTFLoader   — live3d-renderer.js (VRM loading)
+        window.THREE_VRM    — { VRMLoaderPlugin, VRMUtils } for live3d-renderer.js
+      When ready it sets `window.__threeReady = true` and dispatches a
+      `three-ready` event so app.js can (re)activate a persisted Orb / Live3D
+      renderer that was selected before the modules finished loading (module
+      scripts run after the classic scripts below). If the modules fail to load
+      (offline), these globals stay absent and the WebGL renderers fail cleanly
+      in their constructors, so RendererManager degrades to CanvasAvatar /
+      Live2D (Requirement 9 / 12.7).
+    -->
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+          "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/",
+          "@pixiv/three-vrm": "https://cdn.jsdelivr.net/npm/@pixiv/three-vrm@2.1.1/lib/three-vrm.module.js"
+        }
+      }
+    </script>
+    <script type="module">
+      import * as THREE from "three";
+      import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+      import { VRMLoaderPlugin, VRMUtils } from "@pixiv/three-vrm";
+      window.THREE = THREE;
+      window.GLTFLoader = GLTFLoader;
+      window.THREE_VRM = { VRMLoaderPlugin: VRMLoaderPlugin, VRMUtils: VRMUtils };
+      window.__threeReady = true;
+      window.dispatchEvent(new Event("three-ready"));
+    </script>
+
+    <!-- Load order: avatar (render) -> renderer-manager (lifecycle hub) ->
+         orb-renderer / live3d-renderer (three.js renderers) ->
+         status-panel (Telemetry HUD) ->
+         protocol (wire) -> app (wiring). -->
+    <script src="avatar.js"></script>
+    <script src="renderer-manager.js"></script>
+    <script src="orb-renderer.js"></script>
+    <script src="live3d-renderer.js"></script>
+    <script src="status-panel.js"></script>
+    <script src="protocol.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>

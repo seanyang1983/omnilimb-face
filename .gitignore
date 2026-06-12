@@ -1,0 +1,56 @@
+# Byte-compiled / optimized / cached
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Packaging / build artifacts
+build/
+dist/
+*.egg-info/
+.eggs/
+wheels/
+*.egg
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Test / type-check caches
+.pytest_cache/
+.hypothesis/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Editor / OS cruft
+.idea/
+.vscode/
+*.swp
+.DS_Store
+Thumbs.db
+
+# Logs and local runtime data
+*.log
+
+# Front-end JS test harness deps (installed under the in-package test dir)
+node_modules/
+
+# Local scratch / probe artifacts (not part of the distribution)
+_browser_probe*
+
+# Internal design/spec docs (not part of the distributable plugin)
+.kiro/
+
+# Secrets / env (never commit)
+.env
+.env.*
+*.pem
+*.key
+
+# Local deploy/test scratch
+_oltest*
+*.bak
+*.bak-*

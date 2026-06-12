@@ -1,0 +1,15 @@
+{
+  "name": "omnilimb-face-frontend-tests",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Self-contained JS test harness for the omnilimb-face front-end (plain JS, no runtime build step). Uses Node's built-in test runner + fast-check (property-based testing) + jsdom (DOM environment). Lives entirely under frontend/tests/ so it never affects how the plugin serves the plain JS at runtime.",
+  "type": "commonjs",
+  "scripts": {
+    "test": "node --test",
+    "test:watch": "node --test --watch"
+  },
+  "devDependencies": {
+    "fast-check": "^3.23.2",
+    "jsdom": "^25.0.1"
+  }
+}

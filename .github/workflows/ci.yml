@@ -1,0 +1,52 @@
+# omnilimb-face cross-platform CI matrix.
+#
+# This workflow verifies that the plugin INSTALLS, LOADS and PASSES its test
+# suite across Windows, macOS and Linux on a current Python, in the CORE
+# (degraded) configuration (需求 11.1 / 11.2 / 11.4 / 11.5).
+#
+# IMPORTANT: the optional [voice] / [live2d] extras are intentionally NOT
+# installed here. Those extras pull in native / platform-specific bits
+# (sounddevice -> PortAudio, webrtcvad, numpy, uvicorn/starlette) that are not
+# needed to prove the cross-platform contract. Installing ONLY the core package
+# plus the dev/test extras proves that:
+#   * the plugin installs cleanly on every OS (需求 11.1 / 11.2), and
+#   * with no microphone / no voice stack present, the plugin still loads and
+#     its tests pass along the graceful DEGRADED path (需求 11.4 / 11.5).
+# The real multi-OS execution happens here in CI; the local no-microphone
+# degradation smoke test (tests/test_integration.py) asserts the same
+# degradation contract on a single developer machine.
+
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    name: test (${{ matrix.os }}, py${{ matrix.python-version }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        python-version: ["3.11"]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      # Install ONLY the core package + dev/test extras (pytest, hypothesis).
+      # The optional [voice] / [live2d] extras (PortAudio / native bits) are
+      # deliberately omitted so this matrix verifies cross-platform install +
+      # load + the degraded path (需求 11.1 / 11.2 / 11.4 / 11.5).
+      - name: Install (core + dev extras only; no [voice]/[live2d])
+        run: pip install -e ".[dev]"
+
+      - name: Run tests
+        run: pytest -q

@@ -1,0 +1,2 @@
+# Dev-only test dependencies — never committed, never served at runtime.
+node_modules/

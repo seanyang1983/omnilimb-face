@@ -1,0 +1,33 @@
+# omnilimb-face plugin manifest
+#
+# Fields align with hermes `PluginManifest` (hermes_cli/plugins.py).
+# NOTE: the host manifest parser reads `provides_hooks` and `provides_tools`.
+# `hooks` is kept as a human-facing declaration mirroring design.md; the
+# authoritative registration of hooks / tools / CLI + slash commands always
+# happens inside `register(ctx)` (later tasks). This manifest is declarative.
+name: omnilimb-face
+version: 0.1.0
+description: "Open-LLM-VTuber capabilities (hands-free voice, barge-in, Live2D avatar) as a hermes-agent plugin."
+author: "seanyang1983"
+kind: standalone
+
+# Declarative hook list (mirrors design.md). Parsed into PluginManifest via
+# `provides_hooks`; `hooks` is retained for readability/design alignment.
+hooks:
+  - on_session_start
+  - on_session_end
+  - transform_llm_output
+  - post_llm_call
+provides_hooks:
+  - on_session_start
+  - on_session_end
+  - transform_llm_output
+  - post_llm_call
+
+provides_tools:
+  - vtuber_status
+  - vtuber_say
+
+# Voice backend secrets are required dynamically per the selected stt/tts
+# provider, so no static env requirements are declared here.
+requires_env: []

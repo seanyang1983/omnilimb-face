@@ -1,0 +1,17 @@
+[
+  {
+    "name": "default",
+    "description": "Reference Live2D model for the omnilimb-face plugin: the Mao (Cubism 4) sample from Live2D's official CubismWebSamples, loaded from CDN so the example works out of the box. Mao is richer than the Haru greeter — it ships 8 expressions (exp_01..exp_08, mapped below) and 8 motions (2 Idle + 6 TapBody, including 3 'special' reactions) for visibly varied reactions. Swap `url` for your own Cubism `*.model3.json` (and align `emotionMap` to that model's expression list) to use a different avatar; the canvas placeholder front-end ignores `url`. Lip-sync, expression and motion-group differences are handled automatically by avatar.js (it reads the model's declared LipSync param and resolves tap-like motion groups).",
+    "url": "https://cdn.jsdelivr.net/gh/Live2D/CubismWebSamples@b1de66b0b1f1cb881d95fb6158622aeb6a2827bd/Samples/Resources/Mao/Mao.model3.json",
+    "emotionMap": {
+      "neutral": 0,
+      "joy": 1,
+      "smirk": 2,
+      "surprise": 3,
+      "anger": 4,
+      "sadness": 5,
+      "fear": 6,
+      "disgust": 7
+    }
+  }
+]

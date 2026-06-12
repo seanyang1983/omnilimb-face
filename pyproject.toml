@@ -1,0 +1,127 @@
+[build-system]
+requires = ["setuptools>=68,<76", "wheel>=0.42,<0.46"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "omnilimb-face"
+version = "0.1.0"
+description = "Open-LLM-VTuber capabilities (hands-free voice, barge-in, Live2D avatar) as a hermes-agent plugin."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+authors = [{ name = "seanyang1983", email = "yase19636404@163.com" }]
+keywords = ["hermes-agent", "plugin", "vtuber", "live2d", "tts", "stt", "voice"]
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Operating System :: Microsoft :: Windows",
+  "Operating System :: MacOS",
+  "Operating System :: POSIX :: Linux",
+]
+
+# Core runtime dependencies.
+#
+# IMPORTANT (Requirement 12.1): the CORE install MUST NOT pull in the optional
+# voice / Live2D stack, so the plugin can still register in a *degraded* state
+# when those packages are absent. Voice capture, VAD, wake-word and front-end
+# static-serving packages therefore live in the optional extras below.
+#
+# Every dependency carries an upper bound per the hermes Dependency Pinning
+# Policy (post-1.0: >=floor,<next_major; pre-1.0: >=floor,<0.(minor+2)).
+dependencies = [
+  # /client-ws protocol gateway WebSocket transport (Requirement 9).
+  # Compatible with both the legacy (12.x) and new asyncio (13–15.x) APIs;
+  # the gateway reads the request path defensively across both (see
+  # ProtocolGateway._extract_request_path), so it runs against the host's
+  # websockets when installed into hermes (which ships 15.x).
+  "websockets>=12.0,<16",
+]
+
+[project.optional-dependencies]
+# Hands-free microphone capture + voice-activity detection
+# (Requirements 4, 5, 12). Absent -> plugin registers degraded.
+voice = [
+  "sounddevice>=0.4.6,<0.7",
+  "webrtcvad>=2.0.10,<3",
+  "numpy>=1.24,<3",
+]
+
+# Optional wake-word activation (Requirement 13). Absent -> wake-word disabled.
+wakeword = [
+  "openwakeword>=0.6.0,<0.8",
+]
+
+# Front-end static asset serving for the Live2D renderer (Requirement 7).
+live2d = [
+  "starlette>=0.37,<0.42",
+  "uvicorn>=0.30,<0.35",
+]
+
+# Test tooling: pytest for unit/integration tests, Hypothesis for the
+# property-based tests mandated by the design (>= 100 examples each).
+test = [
+  "pytest>=8.0,<9",
+  "hypothesis>=6.100,<7",
+]
+
+# Standalone front-end preview (`python preview.py`): keyless Chinese/!any-language
+# speech via Microsoft Edge online voices so the avatar actually talks without a
+# host LLM/TTS. Needs internet; absent -> the preview falls back to silent
+# synthetic lip-sync.
+preview = [
+  "edge-tts>=6.1,<8",
+  "faster-whisper>=1.0,<2",
+  # Self-signed cert generation for `preview.py --https` (lets phones on the LAN
+  # use the microphone via a secure context).
+  "cryptography>=42,<46",
+]
+
+# Developer tooling (superset of `test`).
+dev = [
+  "pytest>=8.0,<9",
+  "hypothesis>=6.100,<7",
+]
+
+# Discovered by hermes PluginManager via the `hermes_agent.plugins` entry-point
+# group (confirmed in hermes_cli/plugins.py: ENTRY_POINTS_GROUP). The value
+# resolves to a module exposing `register`, which the host loads via
+# `ep.load()` then `getattr(module, "register")` (Requirement 1.6).
+[project.entry-points."hermes_agent.plugins"]
+omnilimb-face = "omnilimb_face.plugin"
+
+[project.urls]
+Homepage = "https://github.com/seanyang1983/omnilimb-face"
+Repository = "https://github.com/seanyang1983/omnilimb-face"
+Issues = "https://github.com/seanyang1983/omnilimb-face/issues"
+
+[tool.setuptools]
+# Explicit package list disables flat-layout auto-discovery (which would trip
+# over the directory-install root `__init__.py` and the `tests/` package).
+packages = [
+  "omnilimb_face",
+  "omnilimb_face.voice",
+  "omnilimb_face.protocol",
+]
+# Ship the MIT license text inside the built wheel/sdist (glob form is
+# compatible with setuptools < 77 / pre-PEP-639 metadata).
+license-files = ["LICENSE"]
+
+# Ship the front-end avatar UI as package data INSIDE the wheel so a plain
+# `pip install omnilimb-face` carries the renderers (Live2D/Live3D), the
+# companion sound-wave Orb, the layout switcher, protocol client and styles.
+# Only the flat runtime assets are bundled — the JS test harness under
+# `frontend/tests/` (and its node_modules) is intentionally NOT matched by the
+# top-level `frontend/*` globs, so it never ends up in the distribution.
+[tool.setuptools.package-data]
+omnilimb_face = [
+  "frontend/*.html",
+  "frontend/*.js",
+  "frontend/*.css",
+  "frontend/*.md",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = "-ra"

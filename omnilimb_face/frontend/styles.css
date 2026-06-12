@@ -1,0 +1,959 @@
+/*
+ * omnilimb-face reference front-end — styles.
+ *
+ * ============================================================================
+ * Design_System (任务 10.1 / Requirement 14)
+ * ============================================================================
+ *
+ * 本文件定义一套统一的「设计系统（Design_System）」：以 :root CSS 自定义属性
+ * （design tokens）集中表达配色（含暗色 / 亮色主题）、排版比例、间距比例、圆角、
+ * 阴影与过渡时长；并在其上构建可复用的组件样式（按钮 .btn / 标签页 .tab /
+ * 弹窗 .modal / 下拉 .select / 输入 .input·.textarea / 状态网格 .status-grid /
+ * 徽标 .badge 含「实时」标识 .badge--live）。
+ *
+ * 这些 token 与组件样式被一致地应用到：主界面（topbar / stage / controls）、
+ * 设置弹窗的全部五个标签页（语音 / 灵魂人格 / 外观 / 交互 / 状态）、Status_Panel
+ * （#status-body / .status-grid）、事件日志（.log）、Interrupt 按钮（.btn--warn）、
+ * ⚙ 设置按钮（.btn）以及「外观」Tab 中的渲染器选择器（#renderer-select）。
+ *
+ * 可访问性 / 响应式 / 过渡（Requirement 14.3–14.8）：
+ *   - 正文文本（--color-text）与背景（--color-bg / --color-surface）的对比度满足
+ *     WCAG AA（正常文本 ≥ 4.5:1）；muted 文本同样 ≥ 4.5:1。
+ *   - 所有交互控件（按钮 / 标签页 / 下拉 / 输入 / 范围条 / 复选框）均可键盘聚焦，
+ *     并通过 :focus-visible 显示可见聚焦环（--focus-ring）。
+ *   - 768px 断点：≥768px 为桌面布局（控件 / 面板完整可见、不重叠 / 溢出）；
+ *     <768px 为窄视口响应式布局（交互控件保持可见 / 可点击 / 不重叠 / 溢出）。
+ *   - 所有视觉过渡时长 token（--transition-fast/base/slow）均 ≤ 400ms，且仅作用于
+ *     具体属性的过渡（不普遍施加于动画 / 渲染循环），从而不影响渲染器帧率目标。
+ *   - 尊重 prefers-reduced-motion：用户偏好减少动态时关闭过渡。
+ */
+
+:root {
+  /* 默认深色主题（dark）。这是本插件「深色舞台」的既定外观；亮色主题仅在
+     显式 :root[data-theme="light"] 时启用，不再跟随系统 prefers-color-scheme，
+     以免在浅色模式系统下舞台/形象变成白底白色而不可见。 */
+  color-scheme: dark;
+
+  /* ---- 配色 tokens（暗色主题）---------------------------------------- */
+  /* 正文文本（--color-text）对 --color-bg ≈ 15.5:1、对 --color-surface ≈ 13.2:1，
+     均满足 WCAG AA（正常文本 ≥ 4.5:1）。--color-text-muted 对 surface ≈ 7.5:1。 */
+  --color-bg: #0e1017;
+  --color-bg-elev: #14161f;
+  --color-surface: #1b1e29;
+  --color-surface-2: #2a2f40;
+  --color-surface-3: #343a4f;
+  --color-text: #e6e8ef;
+  --color-text-muted: #aab1c5;
+  --color-primary: #5b8cff;
+  --color-primary-strong: #2f6df0;
+  --color-on-primary: #ffffff;
+  --color-accent: #ffd700;
+  --color-ok: #3ad29f;
+  --color-warn: #ff9f43;
+  --color-err: #ff5c5c;
+  --color-border: rgba(255, 255, 255, 0.1);
+  --color-border-strong: rgba(255, 255, 255, 0.2);
+  --color-overlay: rgba(0, 0, 0, 0.55);
+  --color-input-bg: #0e1017;
+  --focus-ring-color: #7aa2ff;
+
+  /* ---- 排版 tokens（typography scale）-------------------------------- */
+  --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue",
+    Arial, "PingFang SC", "Microsoft YaHei", sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas,
+    "Liberation Mono", monospace;
+  --fs-100: 0.72rem;
+  --fs-200: 0.8rem;
+  --fs-300: 0.88rem;
+  --fs-400: 1rem;
+  --fs-500: 1.1rem;
+  --fs-600: 1.35rem;
+  --fs-700: 1.65rem;
+  --lh-tight: 1.2;
+  --lh-base: 1.45;
+  --lh-loose: 1.6;
+  --fw-regular: 400;
+  --fw-medium: 500;
+  --fw-semibold: 600;
+
+  /* ---- 间距 tokens（spacing scale, 4px 基准）------------------------- */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-7: 2rem;
+  --space-8: 2.5rem;
+
+  /* ---- 圆角 tokens（radius）------------------------------------------ */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-pill: 999px;
+
+  /* ---- 阴影 tokens（shadow / elevation）------------------------------ */
+  --shadow-1: 0 1px 3px rgba(0, 0, 0, 0.35);
+  --shadow-2: 0 8px 24px rgba(0, 0, 0, 0.4);
+  --shadow-3: 0 20px 60px rgba(0, 0, 0, 0.5);
+
+  /* ---- 过渡 tokens（transition, 全部 ≤ 400ms, Requirement 14.7）------- */
+  --transition-fast: 120ms;
+  --transition-base: 200ms;
+  --transition-slow: 360ms;
+  --ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* ---- 向后兼容别名（保留既有变量名，避免回归）---------------------- */
+  --bg: var(--color-bg);
+  --panel: var(--color-surface);
+  --fg: var(--color-text);
+  --muted: var(--color-text-muted);
+  --accent: var(--color-accent);
+  --ok: var(--color-ok);
+  --warn: var(--color-warn);
+  --err: var(--color-err);
+  --border: var(--color-border);
+}
+
+/* 亮色主题：仅在显式 data-theme="light" 时启用（不跟随系统偏好），避免浅色模式
+   系统把深色舞台翻成白底导致形象不可见。正文文本（#1c2030）对白色背景对比度极高，
+   muted（#51586b）对白 ≈ 7:1，满足 AA。 */
+:root[data-theme="light"] {
+    --color-bg: #f4f5f8;
+    --color-bg-elev: #ffffff;
+    --color-surface: #ffffff;
+    --color-surface-2: #eef0f5;
+    --color-surface-3: #e2e5ee;
+    --color-text: #1c2030;
+    --color-text-muted: #51586b;
+    --color-primary: #2f6df0;
+    --color-primary-strong: #1f57cc;
+    --color-on-primary: #ffffff;
+    --color-accent: #b8860b;
+    --color-ok: #1c8f63;
+    --color-warn: #b96a12;
+    --color-err: #cc3b3b;
+    --color-border: rgba(0, 0, 0, 0.12);
+    --color-border-strong: rgba(0, 0, 0, 0.22);
+    --color-overlay: rgba(20, 22, 30, 0.45);
+    --color-input-bg: #ffffff;
+    --focus-ring-color: #2f6df0;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  /* 应用式「一屏」布局：占满动态视口高度，整页不滚动；内部各区(stage 弹性伸缩、
+     log 内部滚动、modal 自身滚动)各自处理溢出，从而在平板/手机上尽量一屏显示。
+     用 100dvh 适配移动端动态地址栏/工具条带来的视口变化。 */
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  font-family: var(--font-sans);
+  font-size: var(--fs-400);
+  line-height: var(--lh-base);
+  background: var(--color-bg);
+  color: var(--color-text);
+}
+
+/* 全局可见聚焦指示（Requirement 14.6）：所有交互控件键盘聚焦时显示聚焦环。
+   仅 :focus-visible（键盘 / 程序聚焦）显示，鼠标点击不显示，避免视觉噪声。 */
+:focus-visible {
+  outline: 2px solid var(--focus-ring-color);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+/* 移除非键盘聚焦时浏览器默认 outline（聚焦环交由 :focus-visible 提供）。 */
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* 尊重「减少动态」偏好：关闭过渡（不影响渲染器自身的 requestAnimationFrame 循环）。 */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
+
+/* ====================== 主界面 topbar ====================== */
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-5);
+  background: var(--color-bg-elev);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.topbar h1 {
+  font-size: var(--fs-500);
+  font-weight: var(--fw-semibold);
+  margin: 0;
+  letter-spacing: 0.02em;
+}
+
+/* ====================== 版式切换（topbar 居中分段控件） ====================== */
+.layout-switch {
+  display: flex;
+  gap: 2px;
+  padding: 3px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-pill);
+}
+.layout-btn {
+  border: none;
+  background: transparent;
+  color: var(--color-text-muted);
+  font-family: inherit;
+  font-size: var(--fs-200);
+  font-weight: var(--fw-medium);
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background-color var(--transition-base) var(--ease-standard),
+    color var(--transition-base) var(--ease-standard);
+}
+.layout-btn:hover {
+  color: var(--color-text);
+}
+.layout-btn.is-active {
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+}
+
+.status {
+  font-size: var(--fs-200);
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  white-space: nowrap;
+  transition: color var(--transition-base) var(--ease-standard),
+    border-color var(--transition-base) var(--ease-standard);
+}
+.status--connecting {
+  color: var(--color-warn);
+  border-color: var(--color-warn);
+}
+.status--open {
+  color: var(--color-ok);
+  border-color: var(--color-ok);
+}
+.status--closed,
+.status--error {
+  color: var(--color-err);
+  border-color: var(--color-err);
+}
+
+/* ====================== 舞台 / 形象画布 ====================== */
+.stage {
+  flex: 1;
+  min-height: 0; /* 允许在 flex 列中收缩，配合 body 的一屏不滚动 */
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  padding: var(--space-6);
+}
+
+#avatar {
+  position: relative;
+  background: radial-gradient(circle at 50% 35%, var(--color-surface-2), var(--color-bg-elev) 70%);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-2);
+  max-width: 90vw;
+  /* 同时受可用高度约束，避免在矮屏/横屏溢出一屏（配合 stage 的 overflow:hidden）。 */
+  max-height: 100%;
+  width: auto;
+  height: auto;
+  aspect-ratio: 1 / 1;
+  /* 画布是替换元素：用 object-fit:contain 让其 480×480 绘制缓冲始终按正方形等比居中，
+     即便外框因一屏约束被压成非正方形也不拉伸变形（letterbox 区域露出卡片渐变背景）。 */
+  object-fit: contain;
+}
+
+/* 主形象 + 伴随「声波粒子球」并排区域（Orb 常驻显示，不覆盖 Live2D/Live3D）。 */
+.stage-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-5);
+  flex-wrap: wrap;
+  width: 100%;
+  min-height: 0; /* 收缩以适配一屏 */
+}
+
+/* 声波粒子球独立区域：与主形象并排的一块小画布 + 标题。 */
+.orb-pane {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+#orb-canvas {
+  position: relative;
+  width: 240px;
+  height: 240px;
+  max-width: 40vw;
+  aspect-ratio: 1 / 1;
+  background: radial-gradient(circle at 50% 45%, var(--color-surface-2), var(--color-bg-elev) 72%);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-2);
+  object-fit: contain;
+}
+
+.orb-caption {
+  font-size: var(--fs-200);
+  color: var(--color-text-muted);
+  letter-spacing: 0.08em;
+}
+
+/* ============ 版式（data-layout）变体 ============ */
+
+/* 剧场（cinema，默认）：主形象放大居中，声波球缩小浮于右下角。
+   以高度驱动尺寸（受可用高度 + 视口宽度双重约束），保证不同屏比例都尽量一屏铺满。 */
+.stage[data-layout="cinema"] .stage-row {
+  position: relative;
+}
+.stage[data-layout="cinema"] #avatar {
+  width: min(72vh, 560px, 92vw);
+  height: auto;
+  max-height: 100%;
+}
+.stage[data-layout="cinema"] .orb-pane {
+  position: absolute;
+  right: var(--space-2);
+  bottom: var(--space-2);
+  gap: 0;
+}
+.stage[data-layout="cinema"] #orb-canvas {
+  width: 132px;
+  height: 132px;
+  max-width: 28vw;
+  opacity: 0.92;
+}
+.stage[data-layout="cinema"] .orb-caption {
+  display: none;
+}
+
+/* 纯形象(solo)：隐藏声波球，仅放大主形象（同样高度驱动 + 双重约束）。 */
+.stage[data-layout="solo"] .orb-pane {
+  display: none;
+}
+.stage[data-layout="solo"] #avatar {
+  width: min(78vh, 600px, 94vw);
+  height: auto;
+  max-height: 100%;
+}
+
+.subtitle {
+  min-height: 1.5em;
+  max-width: 40rem;
+  text-align: center;
+  font-size: var(--fs-500);
+  line-height: var(--lh-base);
+  color: var(--color-text);
+}
+
+.expression-label {
+  font-size: var(--fs-200);
+  color: var(--color-text-muted);
+  min-height: 1em;
+}
+
+/* ====================== 控制区（底栏） ====================== */
+.controls {
+  border-top: 1px solid var(--color-border);
+  padding: var(--space-3) var(--space-5) var(--space-4);
+  background: var(--color-surface);
+}
+
+.text-form {
+  display: flex;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.text-input {
+  flex: 1 1 14rem;
+  min-width: 0;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+  background: var(--color-input-bg);
+  color: var(--color-text);
+  font-size: var(--fs-400);
+  font-family: inherit;
+  transition: border-color var(--transition-base) var(--ease-standard),
+    box-shadow var(--transition-base) var(--ease-standard);
+}
+.text-input::placeholder {
+  color: var(--color-text-muted);
+}
+
+/* ====================== 按钮组件（.btn） ====================== */
+.btn {
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface-2);
+  color: var(--color-text);
+  font-size: var(--fs-300);
+  font-family: inherit;
+  font-weight: var(--fw-medium);
+  cursor: pointer;
+  transition: background-color var(--transition-fast) var(--ease-standard),
+    border-color var(--transition-fast) var(--ease-standard),
+    color var(--transition-fast) var(--ease-standard);
+}
+.btn:hover {
+  background: var(--color-surface-3);
+}
+.btn:active {
+  transform: translateY(1px);
+}
+.btn--warn {
+  background: transparent;
+  color: var(--color-warn);
+  border-color: var(--color-warn);
+}
+.btn--warn:hover {
+  background: rgba(255, 159, 67, 0.12);
+}
+.btn--active {
+  background: var(--color-ok);
+  color: #08130d;
+  border-color: var(--color-ok);
+}
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ====================== 对话历史 / 消息气泡 ====================== */
+.conv-wrap {
+  margin-top: var(--space-3);
+}
+.conv-title {
+  font-size: var(--fs-200);
+  color: var(--color-text-muted);
+  margin-bottom: var(--space-1);
+}
+.conversation {
+  max-height: 11rem;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-2);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: rgba(0, 0, 0, 0.18);
+}
+.msg {
+  max-width: 80%;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+  font-size: var(--fs-300);
+  line-height: 1.35;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+.msg--user {
+  align-self: flex-end;
+  background: var(--color-primary-strong);
+  color: #fff;
+  border-bottom-right-radius: 2px;
+}
+.msg--agent {
+  align-self: flex-start;
+  background: var(--color-surface-2);
+  color: var(--color-text);
+  border-bottom-left-radius: 2px;
+}
+.msg--system {
+  align-self: center;
+  background: transparent;
+  color: var(--color-text-muted);
+  font-size: var(--fs-200);
+  max-width: 100%;
+  text-align: center;
+}
+.msg .who {
+  display: block;
+  font-size: var(--fs-100);
+  opacity: 0.7;
+  margin-bottom: 0.1rem;
+}
+
+/* ====================== 主界面快捷设置行 ====================== */
+.settings {
+  margin-top: var(--space-3);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--fs-200);
+  color: var(--color-text-muted);
+  flex-wrap: wrap;
+}
+
+/* ====================== 表单控件：下拉 / 输入 ====================== */
+.select {
+  background: var(--color-surface-2);
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: var(--space-2) var(--space-2);
+  font-size: var(--fs-300);
+  font-family: inherit;
+  cursor: pointer;
+  transition: border-color var(--transition-fast) var(--ease-standard);
+}
+.select:hover {
+  border-color: var(--color-border-strong);
+}
+.select:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.input {
+  width: 100%;
+  background: var(--color-input-bg);
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: var(--space-2) var(--space-3);
+  font-size: var(--fs-300);
+  font-family: inherit;
+  transition: border-color var(--transition-base) var(--ease-standard);
+}
+.input::placeholder {
+  color: var(--color-text-muted);
+}
+
+/* ====================== 设置弹窗（modal） ====================== */
+.modal[hidden] {
+  display: none;
+}
+.modal {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-4);
+}
+.modal__backdrop {
+  position: absolute;
+  inset: 0;
+  background: var(--color-overlay);
+}
+.modal__panel {
+  position: relative;
+  width: min(680px, 100%);
+  max-height: 86vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-3);
+  overflow: hidden;
+}
+.modal__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-4) var(--space-5);
+  border-bottom: 1px solid var(--color-border);
+}
+.modal__head h2 {
+  margin: 0;
+  font-size: var(--fs-500);
+  font-weight: var(--fw-semibold);
+}
+.modal__x {
+  background: transparent;
+  border: none;
+  color: var(--color-text-muted);
+  font-size: var(--fs-700);
+  line-height: 1;
+  cursor: pointer;
+  padding: 0 var(--space-2);
+  border-radius: var(--radius-sm);
+  transition: color var(--transition-fast) var(--ease-standard);
+}
+.modal__x:hover {
+  color: var(--color-text);
+}
+
+/* ---- 标签页（tabs） ---- */
+.modal__tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+  padding: var(--space-2) var(--space-4) 0;
+  border-bottom: 1px solid var(--color-border);
+}
+.tab {
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--color-text-muted);
+  padding: var(--space-2) var(--space-3);
+  font-size: var(--fs-300);
+  font-family: inherit;
+  cursor: pointer;
+  transition: color var(--transition-fast) var(--ease-standard),
+    border-color var(--transition-fast) var(--ease-standard);
+}
+.tab:hover {
+  color: var(--color-text);
+}
+.tab--active {
+  color: var(--color-text);
+  border-bottom-color: var(--color-accent);
+}
+
+.modal__body {
+  padding: var(--space-4) var(--space-5);
+  overflow-y: auto;
+}
+.pane {
+  display: none;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+.pane--active {
+  display: flex;
+}
+.pane h3 {
+  margin: var(--space-1) 0 0;
+  font-size: var(--fs-300);
+  font-weight: var(--fw-semibold);
+  color: var(--color-accent);
+}
+.row {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  font-size: var(--fs-300);
+}
+.row label {
+  color: var(--color-text);
+}
+.row .hint {
+  font-size: var(--fs-100);
+  color: var(--color-text-muted);
+  margin: 0;
+}
+.row .val {
+  color: var(--color-accent);
+  font-variant-numeric: tabular-nums;
+}
+.range {
+  width: 100%;
+  accent-color: var(--color-primary);
+}
+input[type="checkbox"] {
+  accent-color: var(--color-primary);
+}
+.textarea {
+  width: 100%;
+  background: var(--color-surface-2);
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: var(--space-2) var(--space-3);
+  font-size: var(--fs-300);
+  line-height: var(--lh-base);
+  resize: vertical;
+  font-family: inherit;
+  transition: border-color var(--transition-base) var(--ease-standard);
+}
+
+/* ====================== Status_Panel（状态网格） ====================== */
+.status-grid {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: var(--space-1) var(--space-4);
+  font-size: var(--fs-300);
+  align-items: baseline;
+}
+.status-grid .k {
+  color: var(--color-text-muted);
+}
+.status-grid .v {
+  color: var(--color-text);
+  word-break: break-word;
+}
+/* 占位 / 不可用指标（StatusPanel 渲染 class="v no"，Requirement 13.11）。 */
+.status-grid .v.no {
+  color: var(--color-text-muted);
+}
+.status-grid .ok {
+  color: var(--color-ok);
+}
+.status-grid .no {
+  color: var(--color-err);
+}
+
+/* ====================== 事件日志（log） ====================== */
+.log {
+  margin: var(--space-3) 0 0;
+  max-height: 8.5rem;
+  overflow-y: auto;
+  padding: var(--space-2) var(--space-3);
+  font-family: var(--font-mono);
+  font-size: var(--fs-100);
+  line-height: var(--lh-base);
+  color: var(--color-text-muted);
+  background: rgba(0, 0, 0, 0.18);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* ====================== 徽标（badges） ====================== */
+/* 通用徽标 + 「实时」标识（.badge--live）。这些 token 化样式
+   为 Design_System 的徽标组件（Requirement 14.1）；此处提供一致的字体 / 过渡基线。 */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-pill);
+  font-size: var(--fs-100);
+  font-weight: var(--fw-semibold);
+  line-height: 1.4;
+  color: #fff;
+  background: rgba(0, 0, 0, 0.45);
+  pointer-events: none;
+  transition: background-color var(--transition-base) var(--ease-standard);
+}
+.badge--live {
+  background: var(--color-err);
+  color: #fff;
+}
+.badge--live::before {
+  content: "";
+  width: 0.5em;
+  height: 0.5em;
+  border-radius: var(--radius-pill);
+  background: currentColor;
+}
+
+/* 渲染器状态标签覆盖层（Orb 的 空闲/聆听/思考/说话 角标，Requirement 12.5）。 */
+.orb-state-label,
+.renderer-state-label {
+  font-family: var(--font-sans);
+  font-weight: var(--fw-semibold);
+  transition: background-color var(--transition-base) var(--ease-standard),
+    color var(--transition-base) var(--ease-standard);
+}
+
+/* Live3D 加载失败的可见文本提示（Requirement 5.2）。 */
+.live3d-error {
+  font-family: var(--font-sans);
+  color: var(--color-text);
+}
+
+/* ====================== 响应式：768px 断点 ====================== */
+/* 桌面布局（≥768px）：所有控件 / 面板完整可见、不重叠 / 溢出（Requirement 14.3）。 */
+@media (min-width: 768px) {
+  .modal__panel {
+    width: min(680px, 92vw);
+  }
+}
+
+/* 窄视口 / 移动 / 局域网手机访问（<768px）：交互控件保持可见、可点击、不重叠 /
+   溢出（Requirement 14.4）。表单换行堆叠、字体微缩、弹窗占满可用宽度。 */
+@media (max-width: 767.98px) {
+  .topbar {
+    padding: var(--space-3) var(--space-4);
+  }
+  .topbar h1 {
+    font-size: var(--fs-400);
+  }
+  .stage {
+    padding: var(--space-4) var(--space-3);
+  }
+  .controls {
+    padding: var(--space-3) var(--space-4) var(--space-4);
+  }
+  /* 文本表单纵向堆叠，按钮平铺成网格保证可点击且不溢出。 */
+  .text-form {
+    gap: var(--space-2);
+  }
+  .text-input {
+    flex: 1 1 100%;
+  }
+  .text-form .btn {
+    flex: 1 1 auto;
+    min-width: 6rem;
+  }
+  /* 弹窗几乎占满窄屏，标签页允许横向滚动避免裁切。 */
+  .modal {
+    padding: var(--space-2);
+  }
+  .modal__panel {
+    width: 100%;
+    max-height: 92vh;
+  }
+  .modal__head {
+    padding: var(--space-3) var(--space-4);
+  }
+  .modal__body {
+    padding: var(--space-4) var(--space-4);
+  }
+  .modal__tabs {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .tab {
+    white-space: nowrap;
+  }
+  /* 状态网格在窄屏改为单列堆叠，避免键值挤压换行错位。 */
+  .status-grid {
+    grid-template-columns: 1fr;
+    gap: var(--space-1);
+  }
+  .status-grid .k {
+    margin-top: var(--space-2);
+  }
+  .msg {
+    max-width: 92%;
+  }
+}
+
+/* ====================== 一屏自适应：平板 / 手机 ====================== */
+
+/* 窄视口(手机竖屏 / 小平板)：进一步压缩纵向占用，让形象 + 输入框尽量一屏。
+   topbar 允许换行但保持紧凑；事件日志缩短(仍可内部滚动)。 */
+@media (max-width: 767.98px) {
+  .topbar {
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+  .layout-switch {
+    order: 3;            /* 版式切换换到第二行，标题与连接状态留在首行 */
+    flex: 1 0 100%;
+    justify-content: center;
+  }
+  .stage {
+    padding: var(--space-3) var(--space-2);
+    gap: var(--space-2);
+  }
+  /* 日志在窄屏更矮，给形象让出空间(内容仍可滚动查看)。 */
+  .log {
+    max-height: 5rem;
+    margin-top: var(--space-2);
+  }
+  .subtitle {
+    font-size: var(--fs-400);
+  }
+}
+
+/* 矮屏(手机横屏 / 矮窗口)：纵向极其有限——隐藏事件日志与表情标签、压扁 topbar/控制区，
+   优先保证「形象 + 字幕 + 输入」一屏可见且不滚动。 */
+@media (max-height: 600px) {
+  .topbar {
+    padding: var(--space-1) var(--space-3);
+  }
+  .stage {
+    padding: var(--space-2);
+    gap: var(--space-1);
+  }
+  .controls {
+    padding: var(--space-2) var(--space-3);
+  }
+  .log {
+    display: none;       /* 矮屏不显示日志，避免顶掉一屏 */
+  }
+  .expression-label {
+    display: none;
+  }
+  .subtitle {
+    min-height: 0;
+    font-size: var(--fs-300);
+  }
+  /* 矮屏由「高度」驱动形象尺寸(此时高度才是约束)，保持正方形且不溢出。 */
+  #avatar,
+  .stage[data-layout="cinema"] #avatar,
+  .stage[data-layout="solo"] #avatar {
+    width: auto;
+    height: min(72vh, 560px);
+    max-width: 92vw;
+    max-height: 100%;
+  }
+}
+
+/* 极窄屏(<420px)：标题缩短、控件可点击不溢出。 */
+@media (max-width: 420px) {
+  .topbar h1 {
+    font-size: var(--fs-300);
+  }
+  .layout-btn {
+    padding: var(--space-1) var(--space-2);
+  }
+}
+
+/* ====================== 按住说话(push-to-talk) ====================== */
+/* 桌面/细指针设备:用持续「免提」,隐藏 PTT。 */
+.btn--ptt {
+  display: none;
+  font-size: var(--fs-500);   /* 纯图标,放大易点 */
+  line-height: 1;
+  touch-action: none;        /* 按住时不触发页面滚动 */
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+/* 录音中(按住)状态:醒目高亮。 */
+.btn--ptt.btn--recording {
+  background: var(--color-err);
+  border-color: var(--color-err);
+  color: #fff;
+}
+
+/* 触摸设备 / 窄屏:用「按住说话」替换持续「免提」(自适应替换),并做成整行长条便于拇指按住。 */
+@media (pointer: coarse), (max-width: 767.98px) {
+  #handsfree-btn {
+    display: none;
+  }
+  .text-form .btn--ptt {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 1 1 100%;            /* 独占一行,做长 */
+    min-width: 0;
+    padding: var(--space-3);
+    font-size: var(--fs-600);
+  }
+}

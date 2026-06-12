@@ -1,0 +1,33 @@
+# Source-distribution manifest for the omnilimb-face plugin.
+#
+# The plugin's runtime Python lives in the `omnilimb_face` package. The avatar
+# UI is shipped as package data inside the package (omnilimb_face/frontend/, see
+# [tool.setuptools.package-data] in pyproject.toml) so a pip-installed wheel
+# carries the UI. These rules also make the sdist carry the full source tree:
+# the front-end assets, the Live2D model config (kept at the project root), and
+# the plugin manifest / license.
+#
+# NOTE: keep this file ASCII-only. setuptools reads MANIFEST.in with the system
+# locale encoding (e.g. GBK on zh-CN Windows), so non-ASCII bytes break the
+# build with a UnicodeDecodeError.
+
+include plugin.yaml
+include LICENSE
+include NOTICE.md
+include THIRD_PARTY_NOTICES.md
+include README.md
+include pyproject.toml
+
+# Front-end avatar UI (renderers, the companion sound-wave orb, the layout
+# switcher, protocol client, styles), shipped inside the package. The JS test
+# harness and its node_modules are pruned from the distribution.
+recursive-include omnilimb_face/frontend *.html *.js *.css *.md *.json
+prune omnilimb_face/frontend/tests
+
+# Live2D model config consumed by the front-end / preview (kept at project root).
+recursive-include models *.json *.md
+
+# Trim caches / build noise from the distribution.
+global-exclude __pycache__ *.py[cod] *.so
+prune .hypothesis
+prune .pytest_cache
