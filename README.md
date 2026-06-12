@@ -2,20 +2,33 @@
 
 ![omnilimb-face](docs/assets/banner.svg)
 
-Open-LLM-VTuber capabilities as a standalone, installable
-[hermes-agent](https://github.com/NousResearch) plugin: hands-free voice
-interaction (VAD + STT), real-time barge-in, and a Live2D avatar with
-lip-sync and expression driving — all without modifying any hermes core file.
+**English** · [中文](README.zh-CN.md)
 
-将 [Open-LLM-VTuber](https://github.com/Open-LLM-VTuber/Open-LLM-VTuber) 的核心能力
-（语音免提交互、实时打断、Live2D 形象互动）作为独立可安装的 hermes-agent 插件交付，
-仅通过 `register(ctx)` 扩展面集成，**不修改** hermes 核心文件。
+A standalone, installable [hermes-agent](https://github.com/NousResearch) plugin
+that gives your agent a **face and a voice**: hands-free voice interaction
+(VAD + STT), real-time barge-in, and a Live2D / Live3D avatar with lip-sync and
+expression driving — all **without modifying any hermes core file**. Part of the
+[omnilimb](https://github.com/seanyang1983/omnilimb) family.
 
-> 📖 **详细文档见 [`docs/GUIDE.md`](docs/GUIDE.md)** —— 介绍 / 架构 / 安装 / 配置 /
-> 命令(CLI·斜杠·工具)/ Live2D·Live3D 切换 / 实时打断(barge-in)/ 故障排查 / 开发测试。
+## Demo
+
+The avatar renders on top and speaks the agent's reply with lip-sync and
+expressions; you type (or talk) in the dialog box below.
+
+![omnilimb-face demo](docs/assets/demo.gif)
+
+> The animation above is a synthetic preview (`python preview.py`); a still frame
+> is in [`docs/assets/screenshot.png`](docs/assets/screenshot.png).
+> Avatar: Live2D Cubism sample **"Mao" © Live2D Inc.** (loaded from CDN, not
+> bundled — see [Credits](#credits--third-party-licensing)).
+
+> 📖 **Full docs: [`docs/GUIDE.md`](docs/GUIDE.md)** — overview / architecture /
+> install / config / commands (CLI · slash · tools) / Live2D ↔ Live3D switching /
+> real-time barge-in / troubleshooting / development.
 >
-> 🎭 **形象深度整合见 [`docs/AVATAR_INTEGRATION.md`](docs/AVATAR_INTEGRATION.md)** —— Live2D/Live3D
-> 表情·动作·口型**怎么绑定**、**怎么导入新模型**（Cubism / VRM）、以及后续 2D+3D **深度融合开发**方向。
+> 🎭 **Avatar deep-dive: [`docs/AVATAR_INTEGRATION.md`](docs/AVATAR_INTEGRATION.md)** —
+> how Live2D/Live3D expressions, motions and lip-sync are bound, how to import
+> your own model (Cubism / VRM), and the 2D + 3D fusion roadmap.
 
 ## How it works
 
@@ -23,8 +36,10 @@ The plugin reuses hermes' existing systems instead of carrying its own model
 config: transcripts are injected via `ctx.inject_message`, the host agent's
 normal turn produces the reply (using the user's active model, tools and
 memory), and the reply text is intercepted through the `transform_llm_output` /
-`post_llm_call` hooks to drive TTS and the Live2D avatar. Speech transcription
-reuses the `stt` config section; speech synthesis reuses the `tts` section.
+`post_llm_call` hooks to drive TTS and the avatar. Speech transcription reuses
+the `stt` config section; speech synthesis reuses the `tts` section. The plugin
+**never calls an LLM itself** — the avatar always speaks your configured agent's
+real answer.
 
 ![architecture](docs/assets/architecture.svg)
 
@@ -40,20 +55,17 @@ pip install -e ".[wakeword]"   # add optional wake-word activation
 pip install -e ".[live2d]"     # add front-end static serving
 ```
 
-The **core** install deliberately excludes the voice/Live2D packages. When
-those optional extras are missing the plugin still registers in a *degraded*
-state and its tools stay visible in `hermes tools` (Requirement 12.1).
+The **core** install deliberately excludes the voice/Live2D packages. When those
+optional extras are missing the plugin still registers in a *degraded* state and
+its tools stay visible in `hermes tools`.
 
 ### Enabling
 
 Discovered via the `hermes_agent.plugins` pip entry point, or by placing the
-directory at `~/AppData/Local/hermes/plugins/omnilimb-face/`. Enable it by
-adding `omnilimb-face` to `plugins.enabled` in `config.yaml`.
+directory at `~/AppData/Local/hermes/plugins/omnilimb-face/`. Enable it by adding
+`omnilimb-face` to `plugins.enabled` in `config.yaml`.
 
-### Full product: chat in hermes, avatar speaks the agent's replies
-
-To run the real integrated form — you chat in the `hermes` CLI and the browser
-avatar speaks the agent's actual LLM replies (lip-sync + expressions):
+### Full product: chat in hermes, the avatar speaks the agent's replies
 
 ```bash
 # 1. install the plugin into the hermes venv (editable; no dependency changes)
@@ -70,18 +82,12 @@ hermes vtuber status      # check the avatar subsystem came up
 #    terminal — the avatar speaks each reply.
 ```
 
-The plugin reads the reply text from the `transform_llm_output` / `post_llm_call`
-hooks (it never calls a model itself), so the avatar always speaks your
-configured agent's real answer. Speech uses the host `text_to_speech` tool when
-present, else the Edge-TTS fallback (Chinese voice by default; configurable via
-`tts.<provider>.voice` when it is an Edge `*Neural` voice). The `/client-ws`
-gateway is compatible with both websockets 12.x and 13–15.x, so it runs against
-the host's websockets build.
+Speech uses the host `text_to_speech` tool when present, else the Edge-TTS
+fallback (Chinese voice by default; configurable via `tts.<provider>.voice` when
+it is an Edge `*Neural` voice). The `/client-ws` gateway is compatible with both
+websockets 12.x and 13–15.x.
 
 ### Preview the avatar (no hermes-agent needed)
-
-To see the Live2D avatar render, lip-sync and switch expressions without a
-running hermes session, launch the standalone preview from the plugin root:
 
 ```bash
 python preview.py            # serves the front-end + /client-ws gateway, opens a browser
@@ -90,7 +96,7 @@ python preview.py            # serves the front-end + /client-ws gateway, opens 
 It opens http://127.0.0.1:12394/ and loads the reference model; typing drives a
 synthetic lip-sync + expression demo (no real TTS audio). For the full voice +
 avatar experience, enable the plugin and run `hermes vtuber start`. See
-`frontend/README.md` for details and how to swap in your own model.
+`omnilimb_face/frontend/README.md` for details and how to swap in your own model.
 
 ## Layout
 
@@ -117,27 +123,26 @@ HYPOTHESIS_PROFILE=ci pytest             # heavier property-test run
 
 Released under the **MIT License** — see [`LICENSE`](LICENSE).
 
-### Credits & third-party licensing / 致谢与第三方授权
+### Credits & third-party licensing
 
 This plugin **does not bundle or redistribute** any avatar models, the Live2D
 Cubism Core, or any third-party front-end runtime. Everything below is loaded
 from CDN at runtime only (with a dependency-free canvas fallback when offline).
-Full details in [`NOTICE.md`](NOTICE.md).
+Full details in [`NOTICE.md`](NOTICE.md) and [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md).
 
 - **Open-LLM-VTuber** — the `/client-ws` protocol here is an independent
   re-implementation *compatible* with
-  [Open-LLM-VTuber](https://github.com/Open-LLM-VTuber/Open-LLM-VTuber)
-  (MIT through v1.2.0 as of 2026-06; see `NOTICE.md` for the license-transition
-  note). No upstream source is copied. Thanks to the project for the protocol
-  design.
+  [Open-LLM-VTuber](https://github.com/Open-LLM-VTuber/Open-LLM-VTuber) (MIT
+  through v1.2.0 as of 2026-06; see `NOTICE.md` for the license-transition note).
+  No upstream source is copied. Thanks to the project for the protocol design.
 - **Live2D Cubism sample model** — the default avatar (`models/model_dict.json`)
   references Live2D Inc.'s official Cubism sample **"Mao"** (a commit-pinned CDN
   URL only). The Cubism Core runtime is proprietary to Live2D Inc. and is loaded
   from Live2D's CDN, never bundled.
 
-  > This content uses sample data owned and copyrighted by Live2D Inc.
-  > (the "Terms of Use for Live2D Cubism Sample Data" / Live2D Cubism SDK
-  > license — https://www.live2d.com/en/).
+  > This content uses sample data owned and copyrighted by Live2D Inc. (the
+  > "Terms of Use for Live2D Cubism Sample Data" / Live2D Cubism SDK license —
+  > https://www.live2d.com/en/).
 
   Live2D's official samples are free for general users and small-scale
   enterprises (latest annual sales under 10,000,000 JPY); larger entities are
@@ -145,13 +150,6 @@ Full details in [`NOTICE.md`](NOTICE.md).
   a model you own or are licensed to use** by editing `models/model_dict.json`.
 - **pixi.js / pixi-live2d-display / three.js / @pixiv/three-vrm** — all MIT,
   loaded from CDN.
-- **Optional Python deps** — `edge-tts` (`[preview]`, **GPL-3.0**, never
-  bundled) and `openWakeWord` (`[wakeword]`, Apache-2.0 library but its
-  pre-trained models are **CC-BY-NC-SA-4.0 / NonCommercial**) need attention for
-  commercial use. Full per-dependency breakdown in
-  [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md).
-
-本插件**不打包、不再分发**任何形象模型、Live2D Cubism Core 或第三方前端运行时,
-全部仅在运行时经 CDN 加载(离线时回退到无依赖的 canvas 占位形象)。默认形象
-仅通过 CDN URL 引用 Live2D 官方示例模型;使用 Live2D 原创角色须保留上述版权声明,
-正式或规模化商用请替换为你自有或已获授权的模型。详见 [`NOTICE.md`](NOTICE.md)。
+- **Optional Python deps** — `edge-tts` (`[preview]`, **GPL-3.0**, never bundled)
+  and `openWakeWord` (`[wakeword]`, Apache-2.0 library but its pre-trained models
+  are **CC-BY-NC-SA-4.0 / NonCommercial**) need attention for commercial use.
