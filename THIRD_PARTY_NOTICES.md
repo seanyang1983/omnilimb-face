@@ -57,6 +57,7 @@ Versions are pinned in `omnilimb_face/frontend/index.html`.
 | Asset | Source | Terms |
 |-------|--------|-------|
 | Live2D "Mao" sample model | [Live2D/CubismWebSamples](https://github.com/Live2D/CubismWebSamples) (commit-pinned CDN) | *Terms of Use for Live2D Cubism Sample Data* + *Free Material License Agreement* — https://www.live2d.com/en/ . Referenced via CDN, never redistributed. See `NOTICE.md` §2 for the required copyright notice and usage limits. |
+| `VRM1_Constraint_Twist_Sample.vrm` (website demo only) | [pixiv/three-vrm](https://github.com/pixiv/three-vrm) examples (CDN) | Official three-vrm sample, loaded only by the hosted `app.html?demo=1` demo to show the Live3D renderer. Not bundled, not the plugin default. Review the model's embedded VRM license metadata before reuse. |
 
 ## Protocol
 

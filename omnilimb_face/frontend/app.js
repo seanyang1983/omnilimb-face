@@ -1336,5 +1336,104 @@
   }
   whenThreeReady(initVoiceOrb);
 
-  proto.connect();
+  // --- standalone DEMO mode (?demo / ?demo=1) ---------------------------
+  // Runs the FULL real UI without a backend gateway: loads the reference model
+  // locally (Live2D "Mao" + a sample VRM for Live3D) and synthesizes lip-sync
+  // from typed text through the SAME AudioPlayer pipeline, so the public website
+  // demo shows the real interface with a moving avatar. A banner makes clear it
+  // is only a UI demo and is NOT connected to a real agent. This block is
+  // ADDITIVE: it activates only when the `demo` query flag is present and never
+  // affects normal gateway-backed operation.
+  var __DEMO__ = new URLSearchParams(location.search).has("demo");
+  if (__DEMO__) {
+    var DEMO_VRM =
+      "https://cdn.jsdelivr.net/gh/pixiv/three-vrm@dev/packages/three-vrm/examples/models/VRM1_Constraint_Twist_Sample.vrm";
+
+    // "Demo only" banner.
+    var banner = document.createElement("div");
+    banner.id = "demo-banner";
+    banner.innerHTML =
+      "🎭 <b>Demo</b> — 仅演示界面，未接入真实 AI（不会真正回答）。完整插件会说出你的 hermes 智能体的真实回复。 · UI demo only, not connected to a real agent.";
+    var bs = banner.style;
+    bs.position = "fixed"; bs.top = "0"; bs.left = "0"; bs.right = "0"; bs.zIndex = "9999";
+    bs.background = "linear-gradient(90deg,#ff66a5,#7aa2ff)"; bs.color = "#0e1018";
+    bs.font = "600 13px/1.5 'Segoe UI',system-ui,Arial,sans-serif"; bs.textAlign = "center";
+    bs.padding = "7px 30px 7px 14px";
+    if (document.body) document.body.appendChild(banner);
+
+    // No gateway in demo mode: suppress the connection overlay and show "demo".
+    setTimeout(function () {
+      try {
+        showConnNotice("connected");
+        els.status.textContent = "demo";
+        els.status.className = "status status--open";
+      } catch (e) {}
+    }, 50);
+
+    // Load the reference model locally (mirrors the gateway's set-model-and-conf),
+    // with a sample VRM as the Live3D source.
+    fetch("models/model_dict.json")
+      .then(function (r) { return r.json(); })
+      .then(function (list) {
+        var m = (list && list[0]) || {};
+        proto.h.onSetModel(
+          { name: m.name || "default", url: m.url, emotionMap: m.emotionMap || {}, is_placeholder: false },
+          {},
+          { vrmUrl: DEMO_VRM }
+        );
+      })
+      .catch(function (e) { log("demo: model_dict load failed: " + e); });
+
+    // Synthesize a spoken segment from text through the real AudioPlayer.
+    var demoSpeak = function (text) {
+      if (!text) return;
+      var names = Object.keys(_lastEmotionMap || {});
+      var idx = names.length ? _lastEmotionMap[names[Math.floor(Math.random() * names.length)]] : 0;
+      var slices = Math.min(140, Math.max(10, Math.round(text.length * 1.6)));
+      var vols = [];
+      for (var i = 0; i < slices; i++) {
+        var base = 0.5 + 0.5 * Math.sin(i / 2.1);
+        vols.push(Math.max(0, Math.min(1, base * (0.5 + Math.random() * 0.5))));
+      }
+      app.audio.enqueue({
+        display_text: { text: text },
+        volumes: vols,
+        slice_length: 60,
+        actions: { expressions: [idx] },
+        audio: null,
+      });
+    };
+
+    // Typing drives the local synthetic speech instead of the (absent) gateway.
+    // Capture phase + stopImmediatePropagation so the gateway-send handler that
+    // was registered earlier on the same form does not also run.
+    els.form.addEventListener(
+      "submit",
+      function (e) {
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        var t = (els.input.value || "").trim();
+        if (!t) return;
+        els.input.value = "";
+        demoSpeak(t);
+      },
+      true
+    );
+
+    // Auto-play a short greeting loop so the avatar is visibly alive on arrival.
+    var demoLines = [
+      "你好!我是 omnilimb-face,给你的 hermes 智能体一张会说话的脸。",
+      "Hi! This is a UI demo — type something and I'll lip-sync it.",
+      "我同时支持 Live2D 与 Live3D(VRM),可在右上角设置里切换。",
+    ];
+    var demoLi = 0;
+    setTimeout(function tick() {
+      if (!app.audio.playing) { demoSpeak(demoLines[demoLi % demoLines.length]); demoLi++; }
+      setTimeout(tick, 6500);
+    }, 2600);
+
+    log("demo mode: standalone front-end (no gateway)");
+  } else {
+    proto.connect();
+  }
 })();

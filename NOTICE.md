@@ -91,6 +91,16 @@ If any CDN asset fails to load (e.g. offline), the front-end falls back to a
 dependency-free canvas placeholder, so no third-party file is required for the
 plugin to run.
 
+### Sample VRM (website demo only)
+
+The hosted website demo (`app.html?demo=1`) loads the official three-vrm sample
+model **`VRM1_Constraint_Twist_Sample.vrm`** from the
+[pixiv/three-vrm](https://github.com/pixiv/three-vrm) examples (via CDN) purely
+to demonstrate the Live3D renderer. It is **not bundled or redistributed** by
+this repository and is **not** the plugin's default model — the plugin's Live3D
+VRM source is supplied at runtime by the host. Review the model's embedded VRM
+license metadata before using it elsewhere.
+
 ## 4. Optional Python dependencies (user-installed, NOT bundled)
 
 These are declared as **optional extras** in `pyproject.toml` and are installed
