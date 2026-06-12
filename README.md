@@ -1,5 +1,7 @@
 # omnilimb-face
 
+![omnilimb-face](docs/assets/banner.svg)
+
 Open-LLM-VTuber capabilities as a standalone, installable
 [hermes-agent](https://github.com/NousResearch) plugin: hands-free voice
 interaction (VAD + STT), real-time barge-in, and a Live2D avatar with
@@ -23,6 +25,8 @@ normal turn produces the reply (using the user's active model, tools and
 memory), and the reply text is intercepted through the `transform_llm_output` /
 `post_llm_call` hooks to drive TTS and the Live2D avatar. Speech transcription
 reuses the `stt` config section; speech synthesis reuses the `tts` section.
+
+![architecture](docs/assets/architecture.svg)
 
 ## Install
 

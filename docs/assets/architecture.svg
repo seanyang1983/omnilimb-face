@@ -1,0 +1,70 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="430" viewBox="0 0 960 430" role="img" aria-label="omnilimb-face architecture">
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L8,3 L0,6 Z" fill="#7aa2ff"/>
+    </marker>
+    <style>
+      .box{fill:#1b2030;stroke:#33405c;stroke-width:1.5;rx:10;}
+      .host{fill:#241b2e;stroke:#7a5a8c;}
+      .t{font-family:Segoe UI,Arial,sans-serif;font-size:14px;fill:#e8ecf5;}
+      .s{font-family:Segoe UI,Arial,sans-serif;font-size:11px;fill:#9aa6bd;}
+      .lbl{font-family:Segoe UI,Arial,sans-serif;font-size:11px;fill:#7aa2ff;}
+      .flow{stroke:#7aa2ff;stroke-width:1.6;fill:none;marker-end:url(#arrow);}
+    </style>
+  </defs>
+  <rect width="960" height="430" fill="#0e1018"/>
+  <text x="24" y="34" font-family="Segoe UI,Arial,sans-serif" font-size="18" font-weight="700" fill="#f4f6fb">omnilimb-face — data flow</text>
+  <text x="24" y="54" class="s">Plugin reuses the host agent's model/tools/memory; it never calls an LLM itself.</text>
+
+  <rect class="box" x="24"  y="80" width="150" height="58" rx="10"/>
+  <text x="99" y="106" class="t" text-anchor="middle">🎤 Mic capture</text>
+  <text x="99" y="124" class="s" text-anchor="middle">VAD segments</text>
+
+  <rect class="box" x="210" y="80" width="150" height="58" rx="10"/>
+  <text x="285" y="106" class="t" text-anchor="middle">STT</text>
+  <text x="285" y="124" class="s" text-anchor="middle">transcribe_audio</text>
+
+  <rect class="box host" x="396" y="74" width="208" height="70" rx="10"/>
+  <text x="500" y="100" class="t" text-anchor="middle">hermes host turn</text>
+  <text x="500" y="118" class="s" text-anchor="middle">ctx.inject_message →</text>
+  <text x="500" y="133" class="s" text-anchor="middle">user's model + tools + memory</text>
+
+  <rect class="box" x="640" y="80" width="180" height="58" rx="10"/>
+  <text x="730" y="103" class="t" text-anchor="middle">reply hooks</text>
+  <text x="730" y="121" class="s" text-anchor="middle">transform_llm_output / post_llm_call</text>
+
+  <line class="flow" x1="174" y1="109" x2="208" y2="109"/>
+  <line class="flow" x1="360" y1="109" x2="394" y2="109"/>
+  <line class="flow" x1="604" y1="109" x2="638" y2="109"/>
+
+  <rect class="box" x="640" y="196" width="180" height="58" rx="10"/>
+  <text x="730" y="220" class="t" text-anchor="middle">Sentence chunker</text>
+  <text x="730" y="238" class="s" text-anchor="middle">incremental split</text>
+
+  <line class="flow" x1="730" y1="138" x2="730" y2="194"/>
+
+  <rect class="box" x="396" y="196" width="208" height="58" rx="10"/>
+  <text x="500" y="220" class="t" text-anchor="middle">TTS + Expression map</text>
+  <text x="500" y="238" class="s" text-anchor="middle">audio + lip-sync volumes + emotions</text>
+
+  <line class="flow" x1="640" y1="225" x2="606" y2="225"/>
+
+  <rect class="box" x="210" y="196" width="150" height="58" rx="10"/>
+  <text x="285" y="220" class="t" text-anchor="middle">Protocol gateway</text>
+  <text x="285" y="238" class="s" text-anchor="middle">/client-ws (WS)</text>
+
+  <line class="flow" x1="396" y1="225" x2="362" y2="225"/>
+
+  <rect class="box" x="24" y="190" width="150" height="70" rx="10"/>
+  <text x="99" y="214" class="t" text-anchor="middle">🖥️ Front-end</text>
+  <text x="99" y="232" class="s" text-anchor="middle">Live2D / Live3D</text>
+  <text x="99" y="248" class="s" text-anchor="middle">lip-sync + expressions</text>
+
+  <line class="flow" x1="210" y1="225" x2="176" y2="225"/>
+
+  <rect x="24" y="300" width="796" height="96" rx="10" fill="#12161f" stroke="#2a3447" stroke-width="1.2"/>
+  <text x="40" y="324" class="lbl">barge-in</text>
+  <text x="40" y="344" class="s">Talking while the avatar speaks stops playback (≤300ms) and cancels the in-flight reply.</text>
+  <text x="40" y="370" class="lbl">degraded mode</text>
+  <text x="40" y="390" class="s">Optional voice / Live2D extras absent → plugin still registers; tools stay visible. CDN assets load at runtime (canvas fallback offline).</text>
+</svg>
