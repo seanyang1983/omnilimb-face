@@ -98,6 +98,21 @@ synthetic lip-sync + expression demo (no real TTS audio). For the full voice +
 avatar experience, enable the plugin and run `hermes vtuber start`. See
 `omnilimb_face/frontend/README.md` for details and how to swap in your own model.
 
+### Mobile (phone) support
+
+The avatar and hands-free voice also run on a phone. Because browsers only allow
+microphone access from a secure context, the preview can serve over **HTTPS with
+a self-signed certificate** on your LAN:
+
+```bash
+python preview.py --lan --https          # HTTPS on your LAN IP (single port 12393)
+# or use start.bat options 3 / 4 (LAN HTTPS, optionally with --llm --stt)
+```
+
+Then open `https://<your-LAN-IP>:12393/` on the phone (same Wi-Fi) and accept the
+self-signed certificate warning once — after that the mobile mic works. Cert
+generation needs the `[preview]` extra (`cryptography`).
+
 ## Layout
 
 ```
