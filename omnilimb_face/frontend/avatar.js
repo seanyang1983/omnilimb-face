@@ -236,15 +236,48 @@
         /* older builds may not expose config; ignore */
       }
 
-      // Transparent canvas so the page background shows through.
+      // Transparent canvas so the page background shows through. Size the
+      // renderer to the canvas's ACTUAL displayed (CSS) size — not its fixed
+      // 480x480 attribute buffer — so the model is fitted to what the user
+      // actually sees instead of being squished into a square that then gets
+      // stretched (which made the avatar appear absent on wide/short layouts).
+      const dispW = canvas.clientWidth || canvas.width || 480;
+      const dispH = canvas.clientHeight || canvas.height || 480;
       this.app = new PIXI.Application({
         view: canvas,
-        width: canvas.width,
-        height: canvas.height,
+        width: dispW,
+        height: dispH,
         backgroundAlpha: 0,
         antialias: true,
         autoStart: true,
       });
+
+      // Keep the renderer matched to the element's CSS size and re-fit the
+      // model on any layout change (window resize / responsive reflow).
+      this._onResize = () => this._resize();
+      window.addEventListener("resize", this._onResize);
+      try {
+        if (typeof ResizeObserver === "function") {
+          this._ro = new ResizeObserver(this._onResize);
+          this._ro.observe(canvas);
+        }
+      } catch (_e) {
+        /* ResizeObserver unavailable; the window resize listener still helps */
+      }
+    }
+
+    /** Match the renderer to the canvas's displayed size, then refit. */
+    _resize() {
+      const w = this.canvas.clientWidth || this.canvas.width || 0;
+      const h = this.canvas.clientHeight || this.canvas.height || 0;
+      if (w > 0 && h > 0 && this.app && this.app.renderer) {
+        try {
+          this.app.renderer.resize(w, h);
+        } catch (_e) {
+          /* ignore */
+        }
+      }
+      this._fit();
     }
 
     /**
@@ -278,7 +311,15 @@
 
       this.model = model;
       this.app.stage.addChild(model);
-      this._fit();
+      // Fit now, then again after layout + a couple of frames: a freshly created
+      // Live2D model can report width/height of 0 until its first update, which
+      // would leave it at its huge native scale (rendering off-canvas, so the
+      // avatar looks absent). Deferred refits guarantee a correct, visible fit
+      // once the real bounds are known.
+      this._resize();
+      requestAnimationFrame(() => this._resize());
+      setTimeout(() => this._resize(), 120);
+      setTimeout(() => this._resize(), 400);
 
       // Discover which parameter(s) this model uses for lip-sync so the mouth
       // moves regardless of the model's rig (ParamMouthOpenY, ParamA, ...).
@@ -305,12 +346,19 @@
       if (!model) return;
       model.anchor.set(0.5, 0.5);
       model.position.set(this.app.renderer.width / 2, this.app.renderer.height / 2);
+      // Reset to native scale BEFORE measuring so the fit is idempotent: a
+      // Live2D model's .width/.height reflect the CURRENT scale, so measuring
+      // without resetting would compound on every re-fit. With scale=1 the
+      // bounds are native and the computed scale is stable across refits.
+      model.scale.set(1);
+      const mw = model.width;
+      const mh = model.height;
+      // Bounds not ready yet (a freshly created model can report 0 until its
+      // first update). Leave scale at 1; a deferred refit (see setModel) runs
+      // once the real bounds are known so the model becomes correctly sized.
+      if (!(mw > 0 && mh > 0)) return;
       const pad = 0.9;
-      const s =
-        Math.min(
-          this.app.renderer.width / model.width,
-          this.app.renderer.height / model.height
-        ) * pad;
+      const s = Math.min(this.app.renderer.width / mw, this.app.renderer.height / mh) * pad;
       if (Number.isFinite(s) && s > 0) model.scale.set(s);
     }
 
@@ -468,6 +516,14 @@
     }
 
     destroy() {
+      if (this._onResize) {
+        window.removeEventListener("resize", this._onResize);
+        this._onResize = null;
+      }
+      if (this._ro) {
+        try { this._ro.disconnect(); } catch (_e) { /* ignore */ }
+        this._ro = null;
+      }
       if (this._ticking) {
         this.app.ticker.remove(this._tick, this);
         this._ticking = false;
