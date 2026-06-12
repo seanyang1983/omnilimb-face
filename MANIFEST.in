@@ -13,6 +13,7 @@
 
 include plugin.yaml
 include LICENSE
+include COMMERCIAL-LICENSE.md
 include NOTICE.md
 include THIRD_PARTY_NOTICES.md
 include README.md

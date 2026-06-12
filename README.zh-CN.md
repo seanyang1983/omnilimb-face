@@ -123,7 +123,18 @@ HYPOTHESIS_PROFILE=ci pytest             # 更重的属性测试
 
 ## 许可
 
-以 **MIT 协议**发布 —— 见 [`LICENSE`](LICENSE)。
+以 **GNU Affero 通用公共许可证 v3.0 或更新版本(AGPL-3.0-or-later)**发布 ——
+见 [`LICENSE`](LICENSE)。
+
+简而言之:你可以自由使用、研究、修改和分享本软件(**包括商业用途**),但如果你
+**分发它、或把修改后的版本作为网络服务对外提供**,就必须同样以 AGPL 公开你的完整
+对应源码 —— 以此保证每一个下游版本都保持开源。
+
+**提供商业 / 专有授权。** 如果你希望在闭源或专有产品中使用 omnilimb-face、且不想
+承担 AGPL 的源码公开义务,可单独购买商业授权 —— 见
+[`COMMERCIAL-LICENSE.md`](COMMERCIAL-LICENSE.md) 或联系 **yase19636404@163.com**。
+
+Copyright © 2025 seanyang1983。
 
 ### 致谢与第三方授权
 

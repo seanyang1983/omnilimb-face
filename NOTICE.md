@@ -1,13 +1,16 @@
 # NOTICE — Third-Party Credits & Licensing / 致谢与第三方授权
 
-`omnilimb-face` is released under the MIT License (see `LICENSE`). The plugin's
+`omnilimb-face` is released under the **GNU Affero General Public License v3.0
+or later (AGPL-3.0-or-later)** (see `LICENSE`); a separate commercial license is
+also available (see `COMMERCIAL-LICENSE.md`). The plugin's
 own source code (Python package and the self-authored front-end renderers) is
 original work. This file documents third-party components the plugin
 **references at runtime** — none of them are bundled or redistributed in this
 repository. For a per-dependency license breakdown see
 [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md).
 
-本插件以 MIT 协议发布(见 `LICENSE`)。插件自身的源代码(Python 包与自写的前端
+本插件以 **GNU Affero 通用公共许可证 v3.0 或更新版本(AGPL-3.0-or-later)**发布
+(见 `LICENSE`),另提供商业授权(见 `COMMERCIAL-LICENSE.md`)。插件自身的源代码(Python 包与自写的前端
 渲染器)均为原创。下列第三方组件**仅在运行时从 CDN 加载或由用户自行安装**,本仓库
 **不打包、不再分发**它们的任何文件。逐项依赖授权见
 [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md)。
@@ -110,7 +113,7 @@ licensing terms worth highlighting:
 - **edge-tts** (`[preview]` extra) — **GPL-3.0**. Used as a keyless TTS fallback
   in the standalone preview / when the host has no `text_to_speech` tool. It is
   invoked as a separately-installed dependency and is **never bundled**, so the
-  plugin's own MIT-licensed code is unaffected. If you need a fully permissive
+  plugin's own AGPL-licensed code is unaffected. If you need a fully permissive
   default audio path, install a non-copyleft TTS backend and treat edge-tts as
   an explicit opt-in.
 - **openWakeWord** (`[wakeword]` extra) — the library is **Apache-2.0**, but its

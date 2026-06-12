@@ -1,6 +1,7 @@
 # Third-Party Notices
 
-`omnilimb-face` is MIT-licensed (see `LICENSE`). It does **not bundle or
+`omnilimb-face` is licensed under **AGPL-3.0-or-later** (see `LICENSE`), with an
+optional commercial license (see `COMMERCIAL-LICENSE.md`). It does **not bundle or
 redistribute** any third-party code, runtime, or avatar model: front-end
 libraries load from CDN at runtime, and Python dependencies are installed
 separately by the user via `pip`. This document lists those components and their
@@ -31,8 +32,8 @@ This file is informational and is not legal advice.
 
 - **edge-tts — GPL-3.0.** Optional (`[preview]` extra), invoked as a
   separately-installed dependency and never bundled, so it does not affect the
-  license of this plugin's own MIT code. For a fully permissive default audio
-  path, prefer a non-copyleft TTS backend and treat edge-tts as explicit opt-in.
+  license of this plugin's own AGPL-licensed code. For a fully permissive default
+  audio path, prefer a non-copyleft TTS backend and treat edge-tts as explicit opt-in.
 - **openWakeWord pre-trained models — CC-BY-NC-SA-4.0 (NonCommercial).** The
   library itself is Apache-2.0, but the default pretrained models carry a
   NonCommercial restriction. The models are downloaded at runtime, not bundled.

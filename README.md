@@ -136,7 +136,21 @@ HYPOTHESIS_PROFILE=ci pytest             # heavier property-test run
 
 ## License
 
-Released under the **MIT License** — see [`LICENSE`](LICENSE).
+Licensed under the **GNU Affero General Public License v3.0 or later
+(AGPL-3.0-or-later)** — see [`LICENSE`](LICENSE).
+
+In short: you are free to use, study, modify and share this software, **including
+for commercial purposes**, but if you distribute it **or run a modified version
+as a network service**, you must release your complete corresponding source
+under the AGPL as well. This keeps every downstream version open.
+
+**Commercial / proprietary license available.** If you want to use omnilimb-face
+in a closed-source or proprietary product without the AGPL's source-disclosure
+obligations, a separate commercial license can be purchased — see
+[`COMMERCIAL-LICENSE.md`](COMMERCIAL-LICENSE.md) or contact
+**yase19636404@163.com**.
+
+Copyright © 2025 seanyang1983.
 
 ### Credits & third-party licensing
 

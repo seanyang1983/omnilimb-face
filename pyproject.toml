@@ -8,10 +8,11 @@ version = "0.1.0"
 description = "Open-LLM-VTuber capabilities (hands-free voice, barge-in, Live2D avatar) as a hermes-agent plugin."
 readme = "README.md"
 requires-python = ">=3.11"
-license = { text = "MIT" }
+license = { text = "AGPL-3.0-or-later" }
 authors = [{ name = "seanyang1983", email = "yase19636404@163.com" }]
-keywords = ["hermes-agent", "plugin", "vtuber", "live2d", "tts", "stt", "voice"]
+keywords = ["hermes-agent", "plugin", "vtuber", "live2d", "live3d", "tts", "stt", "voice"]
 classifiers = [
+  "License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)",
   "Programming Language :: Python :: 3",
   "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",
@@ -103,7 +104,7 @@ packages = [
   "omnilimb_face.voice",
   "omnilimb_face.protocol",
 ]
-# Ship the MIT license text inside the built wheel/sdist (glob form is
+# Ship the AGPL-3.0 license text inside the built wheel/sdist (glob form is
 # compatible with setuptools < 77 / pre-PEP-639 metadata).
 license-files = ["LICENSE"]
 
