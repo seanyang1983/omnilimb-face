@@ -14,12 +14,13 @@
   .wrap{max-width:960px;margin:0 auto;padding:0 20px}
   header.top{display:flex;align-items:center;justify-content:space-between;padding:18px 20px;max-width:960px;margin:0 auto}
   .brand{font-weight:700;font-size:20px}
-  .langs button{background:none;border:1px solid var(--line);color:var(--mut);border-radius:8px;padding:4px 10px;cursor:pointer;font-size:13px}
+  .langs button{display:inline-flex;align-items:center;height:34px;background:none;border:1px solid var(--line);color:var(--mut);border-radius:8px;padding:0 14px;cursor:pointer;font-size:14px;line-height:1}
   .langs button.on{color:var(--tx);border-color:var(--blue)}
-  .hdr-right{display:flex;align-items:center;gap:10px}
-  .gh{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:8px;padding:4px 10px;color:var(--tx);font-size:13px}
+  .hdr-right{display:flex;align-items:center;gap:8px}
+  .gh{display:inline-flex;align-items:center;gap:6px;height:34px;border:1px solid var(--line);border-radius:8px;padding:0 14px;color:var(--tx);font-size:14px;line-height:1;box-sizing:border-box}
+  .langs button{box-sizing:border-box}
   .gh:hover{border-color:var(--blue);text-decoration:none}
-  .gh svg{display:block}
+  .gh svg{display:block;width:15px;height:15px}
   .hero{text-align:center;padding:48px 20px 24px}
   .hero h1{font-size:44px;margin:.2em 0;background:linear-gradient(90deg,var(--pink),var(--blue));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
   .hero .sub{color:var(--mut);font-size:18px;max-width:680px;margin:0 auto}
