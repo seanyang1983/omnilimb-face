@@ -66,7 +66,7 @@ Requires **Python 3.11+**. Pick one of the two paths below — each is step by s
 ### Option A — 1-minute preview (no hermes-agent needed)
 
 ```bash
-# 1) install it (avatar + voice in/out + typed chat all included)
+# 1) install it (the avatar renders, TALKS via Edge-TTS, and takes typed input)
 pip install omnilimb-face
 # 2) start it — ONE command serves the web page + gateway and opens your browser
 omnilimb-face
@@ -103,11 +103,13 @@ fallback (Chinese voice by default; set `tts.<provider>.voice` to an Edge
 
 ### Optional extras
 
-`pip install omnilimb-face` is already a complete, working setup (avatar +
-voice in/out + typed chat). The extras below only add heavier, opt-in pieces:
+`pip install omnilimb-face` already renders the avatar, **talks** (Edge-TTS) and
+takes typed input. The extras below add the **full hands-free voice loop** and
+other opt-in pieces:
 
 ```bash
-pip install "omnilimb-face[all]"        # everything below, in one go
+pip install "omnilimb-face[all]"        # full voice loop: mic capture + STT + wake-word
+pip install "omnilimb-face[voice]"      # hands-free microphone capture + VAD
 pip install "omnilimb-face[stt]"        # local speech-to-text (faster-whisper) for --stt
 pip install "omnilimb-face[wakeword]"   # wake-word activation
 pip install "omnilimb-face[dev]"        # test tooling

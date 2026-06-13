@@ -60,7 +60,7 @@
 ### 方式 A —— 一分钟预览(无需 hermes-agent)
 
 ```bash
-# 1) 安装(形象 + 语音输入/输出 + 打字交互,全都包含)
+# 1) 安装(形象渲染 + 用 Edge-TTS 说话 + 打字输入)
 pip install omnilimb-face
 # 2) 启动 —— 一条命令同时起网页 + 网关,并自动打开浏览器
 omnilimb-face
@@ -95,11 +95,12 @@ websockets 12.x 与 13–15.x。
 
 ### 可选 extras
 
-`pip install omnilimb-face` 本身就是完整可用的(形象 + 语音输入/输出 + 打字交互)。
-下面的 extras 只是额外加上**更重的可选项**:
+`pip install omnilimb-face` 装完即可:形象渲染 + **说话**(Edge-TTS)+ 打字输入。
+下面的 extras 增加**完整免提语音闭环**和其他可选项:
 
 ```bash
-pip install "omnilimb-face[all]"        # 一次装上下面全部
+pip install "omnilimb-face[all]"        # 完整语音闭环:麦克风采集 + STT + 唤醒词
+pip install "omnilimb-face[voice]"      # 免提麦克风采集 + VAD
 pip install "omnilimb-face[stt]"        # 本地语音识别(faster-whisper),给 --stt 用
 pip install "omnilimb-face[wakeword]"   # 唤醒词
 pip install "omnilimb-face[dev]"        # 测试工具

@@ -16,13 +16,13 @@ This file is informational and is not legal advice.
 | Package | Extra | License | Bundled? | Notes |
 |---------|-------|---------|----------|-------|
 | `websockets` | core | BSD-3-Clause | No (pip) | `/client-ws` gateway transport. |
-| `sounddevice` | core | MIT | No (pip) | Microphone capture (PortAudio binding). |
-| `webrtcvad-wheels` | core | MIT (wrapper) / BSD-3-Clause (WebRTC) | No (pip) | Voice-activity detection (prebuilt-wheel drop-in for `webrtcvad`; same `import webrtcvad`). |
-| `numpy` | core | BSD-3-Clause | No (pip) | Audio buffer math. |
 | `starlette` | core | BSD-3-Clause | No (pip) | Front-end static serving. |
 | `uvicorn` | core | BSD-3-Clause | No (pip) | ASGI server for static serving. |
 | `edge-tts` | core | **GPL-3.0** | No (pip) | Keyless TTS voice-out — see below. |
 | `cryptography` | core | Apache-2.0 OR BSD-3-Clause | No (pip) | Self-signed cert for `omnilimb-face --https`. |
+| `sounddevice` | `[voice]`/`[all]` | MIT | No (pip) | Hands-free microphone capture (PortAudio binding). |
+| `webrtcvad-wheels` | `[voice]`/`[all]` | MIT (wrapper) / BSD-3-Clause (WebRTC) | No (pip) | Voice-activity detection (prebuilt-wheel drop-in for `webrtcvad`; same `import webrtcvad`). |
+| `numpy` | `[voice]`/`[all]` | BSD-3-Clause | No (pip) | Audio buffer math. |
 | `faster-whisper` | `[stt]`/`[all]` | MIT | No (pip) | Local STT for the preview's `--stt`. |
 | `openwakeword` | `[wakeword]`/`[all]` | Apache-2.0 (library) | No (pip) | **Pre-trained models are CC-BY-NC-SA-4.0 (NonCommercial)** — see below. |
 | `pytest` | `[test]`/`[dev]` | MIT | No (pip) | Test runner. |

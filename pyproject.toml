@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "omnilimb-face"
-version = "0.1.2"
+version = "0.1.3"
 description = "Open-LLM-VTuber capabilities (hands-free voice, barge-in, Live2D avatar) as a hermes-agent plugin."
 readme = "README.md"
 requires-python = ">=3.11"
@@ -37,16 +37,11 @@ dependencies = [
   # ProtocolGateway._extract_request_path), so it runs against the host's
   # websockets when installed into hermes (which ships 15.x).
   "websockets>=12.0,<16",
-  # Hands-free microphone capture + voice-activity detection (Requirements 4, 5).
-  # webrtcvad-wheels ships PREBUILT wheels (same `import webrtcvad`) so install
-  # needs no C compiler.
-  "sounddevice>=0.4.6,<0.7",
-  "webrtcvad-wheels>=2.0.10,<3",
-  "numpy>=1.24,<3",
-  # Front-end static asset serving for the avatar UI (Requirement 7).
+  # Front-end static asset serving for the avatar UI (Requirement 7) — needed
+  # so a plain `pip install omnilimb-face` can serve the avatar page.
   "starlette>=0.37,<0.42",
   "uvicorn>=0.30,<0.35",
-  # Keyless voice OUT: Microsoft Edge online voices, so the avatar talks without
+  # Keyless voice OUT: Microsoft Edge online voices, so the avatar TALKS without
   # a host LLM/TTS (GPL-3.0; installed separately via pip, not bundled).
   "edge-tts>=6.1,<8",
   # Self-signed cert generation for `omnilimb-face --https` (lets phones on the
@@ -55,10 +50,22 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+# Hands-free server-side MICROPHONE capture + voice-activity detection
+# (Requirements 4, 5) — used by the hermes plugin's hands-free path. The preview
+# captures the mic in the BROWSER instead, so it does not need this. On a host
+# without PortAudio `import sounddevice` raises OSError, so it is kept opt-in to
+# keep the default install clean and cross-platform. webrtcvad-wheels ships
+# PREBUILT wheels (same `import webrtcvad`) so install needs no C compiler.
+voice = [
+  "sounddevice>=0.4.6,<0.7",
+  "webrtcvad-wheels>=2.0.10,<3",
+  "numpy>=1.24,<3",
+]
+
 # Optional local speech-to-text for the preview's `--stt` (browser mic audio ->
 # faster-whisper). HEAVY (pulls onnxruntime / ctranslate2 / scipy, hundreds of
-# MB), so it is kept opt-in to keep the default install lean. Absent -> STT is
-# disabled (you can still TYPE to the avatar; voice OUT still works).
+# MB), so it is kept opt-in. Absent -> STT disabled (you can still TYPE; voice
+# OUT still works).
 stt = [
   "faster-whisper>=1.0,<2",
 ]
@@ -81,12 +88,12 @@ dev = [
   "hypothesis>=6.100,<7",
 ]
 
-# The default `pip install omnilimb-face` is ALREADY a complete, working setup
-# (avatar + voice in/out + typed interaction). `[all]` only adds the heavier
-# OPT-IN pieces — local speech-to-text and wake-word:
+# The default `pip install omnilimb-face` already renders the avatar, TALKS
+# (Edge-TTS) and takes typed input. `[all]` adds the full voice loop: hands-free
+# microphone capture, local speech-to-text and wake-word:
 #   pip install "omnilimb-face[all]"
 all = [
-  "omnilimb-face[stt,wakeword]",
+  "omnilimb-face[voice,stt,wakeword]",
 ]
 
 # Discovered by hermes PluginManager via the `hermes_agent.plugins` entry-point
