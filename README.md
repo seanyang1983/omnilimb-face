@@ -155,6 +155,22 @@ pytest                                   # run the test suite
 HYPOTHESIS_PROFILE=ci pytest             # heavier property-test run
 ```
 
+### Releasing (maintainers)
+
+Bump `version` in `pyproject.toml`, then publish with the helper script:
+
+```powershell
+py -3.11 -m pip install --upgrade build twine   # one-time
+./release.ps1                                   # build + upload to PyPI
+./release.ps1 -TestPyPI                         # dry-run against TestPyPI first
+./release.ps1 -SkipBuild                        # upload an existing dist/ only
+```
+
+`release.ps1` reads the project-scoped PyPI token from a local `.env`
+(`PYPI_API_TOKEN_FACE`) that lives **outside** the repo and is never committed.
+The token is used transiently and masked in all output. PyPI rejects re-uploading
+an existing version, so always bump `version` first.
+
 ## License
 
 Licensed under the **GNU Affero General Public License v3.0 or later

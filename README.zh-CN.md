@@ -142,6 +142,21 @@ pytest                                   # 运行测试套件
 HYPOTHESIS_PROFILE=ci pytest             # 更重的属性测试
 ```
 
+### 发版(维护者)
+
+先在 `pyproject.toml` 里把 `version` 往上调,再用脚本发布:
+
+```powershell
+py -3.11 -m pip install --upgrade build twine   # 一次性安装工具
+./release.ps1                                   # 构建 + 上传到 PyPI
+./release.ps1 -TestPyPI                         # 先发到 TestPyPI 试水
+./release.ps1 -SkipBuild                        # 只上传已有的 dist/
+```
+
+`release.ps1` 会从仓库**之外**的本地 `.env` 读取项目级 PyPI token
+(`PYPI_API_TOKEN_FACE`),该文件永不提交。token 仅临时使用、且在所有输出中脱敏。
+PyPI 不允许重复上传同一版本号,所以发版前务必先升 `version`。
+
 ## 许可
 
 以 **GNU Affero 通用公共许可证 v3.0 或更新版本(AGPL-3.0-or-later)**发布 ——
