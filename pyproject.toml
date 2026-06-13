@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "omnilimb-face"
-version = "0.1.3"
+version = "0.1.4"
 description = "Open-LLM-VTuber capabilities (hands-free voice, barge-in, Live2D avatar) as a hermes-agent plugin."
 readme = "README.md"
 requires-python = ">=3.11"

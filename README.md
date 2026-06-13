@@ -31,10 +31,10 @@ expression driving — all **without modifying any hermes core file**. Part of t
 The avatar renders on top and speaks the agent's reply with lip-sync and
 expressions; you type (or talk) in the dialog box below.
 
-![omnilimb-face demo](docs/assets/demo.gif)
+![omnilimb-face demo](https://cdn.jsdelivr.net/gh/seanyang1983/omnilimb-face@main/docs/assets/demo.gif)
 
 > The animation above is a synthetic preview (`omnilimb-face`); a still frame
-> is in [`docs/assets/screenshot.png`](docs/assets/screenshot.png).
+> is in [`docs/assets/screenshot.png`](https://cdn.jsdelivr.net/gh/seanyang1983/omnilimb-face@main/docs/assets/screenshot.png).
 > Avatar: Live2D Cubism sample **"Mao" © Live2D Inc.** (loaded from CDN, not
 > bundled — see [Credits](#credits--third-party-licensing)).
 
@@ -57,7 +57,7 @@ the `stt` config section; speech synthesis reuses the `tts` section. The plugin
 **never calls an LLM itself** — the avatar always speaks your configured agent's
 real answer.
 
-![architecture](docs/assets/architecture.svg)
+![architecture](https://cdn.jsdelivr.net/gh/seanyang1983/omnilimb-face@main/docs/assets/architecture.svg)
 
 ## Getting started
 
@@ -190,7 +190,7 @@ an existing version, so always bump `version` first.
 ## License
 
 Licensed under the **GNU Affero General Public License v3.0 or later
-(AGPL-3.0-or-later)** — see [`LICENSE`](LICENSE).
+(AGPL-3.0-or-later)** — see [`LICENSE`](https://github.com/seanyang1983/omnilimb-face/blob/main/LICENSE).
 
 In short: you are free to use, study, modify and share this software, **including
 for commercial purposes**, but if you distribute it **or run a modified version
@@ -200,7 +200,7 @@ under the AGPL as well. This keeps every downstream version open.
 **Commercial / proprietary license available.** If you want to use omnilimb-face
 in a closed-source or proprietary product without the AGPL's source-disclosure
 obligations, a separate commercial license can be purchased — see
-[`COMMERCIAL-LICENSE.md`](COMMERCIAL-LICENSE.md) or contact
+[`COMMERCIAL-LICENSE.md`](https://github.com/seanyang1983/omnilimb-face/blob/main/COMMERCIAL-LICENSE.md) or contact
 **yase19636404@163.com**.
 
 Copyright © 2025 seanyang1983.
@@ -210,7 +210,7 @@ Copyright © 2025 seanyang1983.
 This plugin **does not bundle or redistribute** any avatar models, the Live2D
 Cubism Core, or any third-party front-end runtime. Everything below is loaded
 from CDN at runtime only (with a dependency-free canvas fallback when offline).
-Full details in [`NOTICE.md`](NOTICE.md) and [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md).
+Full details in [`NOTICE.md`](https://github.com/seanyang1983/omnilimb-face/blob/main/NOTICE.md) and [`THIRD_PARTY_NOTICES.md`](https://github.com/seanyang1983/omnilimb-face/blob/main/THIRD_PARTY_NOTICES.md).
 
 - **Open-LLM-VTuber** — the `/client-ws` protocol here is an independent
   re-implementation *compatible* with
