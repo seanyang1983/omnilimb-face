@@ -92,21 +92,21 @@
     <p class="blk" data-zh>面向 <a href="https://github.com/NousResearch" target="_blank" rel="noopener">hermes-agent</a> 的独立可安装插件。需要 Python 3.11+。两种运行方式:</p>
     <p class="blk" data-en><b>A. 1-minute preview</b> (no hermes-agent needed):</p>
     <p class="blk" data-zh><b>A. 一分钟预览</b>(无需 hermes-agent):</p>
-<pre><code># 1) install EVERYTHING in one command (incl. voice, so you hear it)
-pip install "omnilimb-face[all]"
+<pre><code># 1) install it (avatar + voice in/out + typed chat included)
+pip install omnilimb-face
 # 2) start it — one command serves the page + gateway and opens the browser
 omnilimb-face
 # 3) open the PAGE:  http://127.0.0.1:12394/     (NOT 12393)</code></pre>
     <p class="blk" data-en><b>B. Full product</b> — chat in hermes, the avatar speaks the real replies:</p>
     <p class="blk" data-zh><b>B. 完整形态</b> —— 在 hermes 里聊天,形象说出真实回复:</p>
-<pre><code># 1) install into the hermes venv, everything in one command
-&lt;hermes-venv&gt;/python -m pip install "omnilimb-face[all]"
+<pre><code># 1) install into the hermes venv (one command, everything included)
+&lt;hermes-venv&gt;/python -m pip install omnilimb-face
 # 2) enable it: add `omnilimb-face` to plugins.enabled in ~/.hermes/config.yaml
 # 3) run hermes (starts gateway 12393 + front-end 12394)
 hermes
 hermes vtuber status
 # 4) open  http://127.0.0.1:12394/  and chat in the terminal</code></pre>
-    <p class="note"><span data-en>⚠️ The web page is on <b>port 12394</b>; <b>12393</b> is the WebSocket gateway (opening 12393 in a browser won't work). No sound? install the voice engine via <code>".[all]"</code> (or <code>pip install edge-tts</code>) and click the page once. Full docs, config, CLI / slash commands, Live2D↔Live3D switching, mobile HTTPS and troubleshooting on <a href="https://github.com/seanyang1983/omnilimb-face" target="_blank" rel="noopener">GitHub</a>.</span><span data-zh>⚠️ 网页在 <b>12394 端口</b>;<b>12393</b> 是 WebSocket 网关(用浏览器开 12393 打不开)。没声音?用 <code>".[all]"</code>(或 <code>pip install edge-tts</code>)装上语音引擎,并先点一下页面。完整文档、配置、CLI/斜杠命令、Live2D↔Live3D 切换、手机 HTTPS 与故障排查见 <a href="https://github.com/seanyang1983/omnilimb-face" target="_blank" rel="noopener">GitHub</a>。</span></p>
+    <p class="note"><span data-en>⚠️ The web page is on <b>port 12394</b>; <b>12393</b> is the WebSocket gateway (opening 12393 in a browser won't work). No sound? Edge-TTS ships in the install — just connect to the internet and click the page once. Full docs, config, CLI / slash commands, Live2D↔Live3D switching, mobile HTTPS and troubleshooting on <a href="https://github.com/seanyang1983/omnilimb-face" target="_blank" rel="noopener">GitHub</a>.</span><span data-zh>⚠️ 网页在 <b>12394 端口</b>;<b>12393</b> 是 WebSocket 网关(用浏览器开 12393 打不开)。没声音?Edge-TTS 语音已随安装一起装好,联网并先点一下页面即可。完整文档、配置、CLI/斜杠命令、Live2D↔Live3D 切换、手机 HTTPS 与故障排查见 <a href="https://github.com/seanyang1983/omnilimb-face" target="_blank" rel="noopener">GitHub</a>。</span></p>
   </section>
 
   <section>

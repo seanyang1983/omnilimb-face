@@ -16,24 +16,26 @@ This file is informational and is not legal advice.
 | Package | Extra | License | Bundled? | Notes |
 |---------|-------|---------|----------|-------|
 | `websockets` | core | BSD-3-Clause | No (pip) | `/client-ws` gateway transport. |
-| `sounddevice` | `[voice]` | MIT | No (pip) | Microphone capture (PortAudio binding). |
-| `webrtcvad-wheels` | `[voice]` | MIT (wrapper) / BSD-3-Clause (WebRTC) | No (pip) | Voice-activity detection (prebuilt-wheel drop-in for `webrtcvad`; same `import webrtcvad`). |
-| `numpy` | `[voice]` | BSD-3-Clause | No (pip) | Audio buffer math. |
-| `openwakeword` | `[wakeword]` | Apache-2.0 (library) | No (pip) | **Pre-trained models are CC-BY-NC-SA-4.0 (NonCommercial)** — see below. |
-| `starlette` | `[live2d]` | BSD-3-Clause | No (pip) | Front-end static serving. |
-| `uvicorn` | `[live2d]` | BSD-3-Clause | No (pip) | ASGI server for static serving. |
-| `edge-tts` | `[preview]` | **GPL-3.0** | No (pip) | Keyless TTS fallback — see below. |
-| `faster-whisper` | `[preview]` | MIT | No (pip) | Local STT for the preview tool. |
-| `cryptography` | `[preview]` | Apache-2.0 OR BSD-3-Clause | No (pip) | Self-signed cert for `preview.py --https`. |
+| `sounddevice` | core | MIT | No (pip) | Microphone capture (PortAudio binding). |
+| `webrtcvad-wheels` | core | MIT (wrapper) / BSD-3-Clause (WebRTC) | No (pip) | Voice-activity detection (prebuilt-wheel drop-in for `webrtcvad`; same `import webrtcvad`). |
+| `numpy` | core | BSD-3-Clause | No (pip) | Audio buffer math. |
+| `starlette` | core | BSD-3-Clause | No (pip) | Front-end static serving. |
+| `uvicorn` | core | BSD-3-Clause | No (pip) | ASGI server for static serving. |
+| `edge-tts` | core | **GPL-3.0** | No (pip) | Keyless TTS voice-out — see below. |
+| `cryptography` | core | Apache-2.0 OR BSD-3-Clause | No (pip) | Self-signed cert for `omnilimb-face --https`. |
+| `faster-whisper` | `[stt]`/`[all]` | MIT | No (pip) | Local STT for the preview's `--stt`. |
+| `openwakeword` | `[wakeword]`/`[all]` | Apache-2.0 (library) | No (pip) | **Pre-trained models are CC-BY-NC-SA-4.0 (NonCommercial)** — see below. |
 | `pytest` | `[test]`/`[dev]` | MIT | No (pip) | Test runner. |
 | `hypothesis` | `[test]`/`[dev]` | MPL-2.0 | No (pip) | Property-based tests (dev only). |
 
 ### Dependencies needing attention
 
-- **edge-tts — GPL-3.0.** Optional (`[preview]` extra), invoked as a
-  separately-installed dependency and never bundled, so it does not affect the
-  license of this plugin's own AGPL-licensed code. For a fully permissive default
-  audio path, prefer a non-copyleft TTS backend and treat edge-tts as explicit opt-in.
+- **edge-tts — GPL-3.0.** A **core** runtime dependency (keyless voice-out),
+  invoked as a separately-installed pip package and never bundled into this
+  distribution, so it does not change the license of this plugin's own
+  AGPL-licensed code (AGPL-3.0 and GPL-3.0 are compatible). If you need a fully
+  permissive audio path, install with `--no-deps` and supply a non-copyleft TTS
+  backend instead.
 - **openWakeWord pre-trained models — CC-BY-NC-SA-4.0 (NonCommercial).** The
   library itself is Apache-2.0, but the default pretrained models carry a
   NonCommercial restriction. The models are downloaded at runtime, not bundled.

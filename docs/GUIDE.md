@@ -91,7 +91,7 @@ hermes 核心文件**。
 
 **方式 A —— 一分钟预览(无需 hermes):**
 ```bash
-pip install "omnilimb-face[all]"   # ① 一条命令装齐所有依赖(含 Edge-TTS 语音,能出声)
+pip install omnilimb-face          # ① 一条命令装齐(形象 + 语音输入/输出 + 打字交互)
 omnilimb-face                      # ② 启动:同时提供网页 + 网关,并自动打开浏览器
 #                                    ③ (没自动打开就)访问  http://127.0.0.1:12394/   (不是 12393!)
 ```

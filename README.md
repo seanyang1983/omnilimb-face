@@ -66,8 +66,8 @@ Requires **Python 3.11+**. Pick one of the two paths below — each is step by s
 ### Option A — 1-minute preview (no hermes-agent needed)
 
 ```bash
-# 1) install EVERYTHING in one command (incl. the Edge-TTS voice, so you HEAR it)
-pip install "omnilimb-face[all]"
+# 1) install it (avatar + voice in/out + typed chat all included)
+pip install omnilimb-face
 # 2) start it — ONE command serves the web page + gateway and opens your browser
 omnilimb-face
 # 3) (if the browser didn't open) go to:
@@ -86,8 +86,8 @@ Type in the page and the avatar replies in Chinese voice with lip-sync + express
 ### Option B — full product (chat in hermes, the avatar speaks the real replies)
 
 ```bash
-# 1) install into the hermes venv, everything included, in ONE command
-<hermes-venv>/python -m pip install "omnilimb-face[all]"
+# 1) install into the hermes venv (one command, everything included)
+<hermes-venv>/python -m pip install omnilimb-face
 # 2) enable it: add `omnilimb-face` to plugins.enabled in ~/.hermes/config.yaml
 # 3) run hermes — it starts the gateway (12393) + front-end (12394)
 hermes
@@ -101,17 +101,15 @@ fallback (Chinese voice by default; set `tts.<provider>.voice` to an Edge
 `*Neural` voice to change it). The `/client-ws` gateway works with websockets
 12.x and 13–15.x.
 
-### Smaller installs (optional)
+### Optional extras
 
-`[all]` pulls everything for a working setup. If you want a smaller footprint,
-install only the pieces you need — the **core** install runs in a *degraded* state
-without them (it still registers and its tools stay visible in `hermes tools`):
+`pip install omnilimb-face` is already a complete, working setup (avatar +
+voice in/out + typed chat). The extras below only add heavier, opt-in pieces:
 
 ```bash
-pip install "omnilimb-face[voice]"      # microphone capture + VAD (hands-free)
-pip install "omnilimb-face[wakeword]"   # optional wake-word activation
-pip install "omnilimb-face[live2d]"     # front-end static serving
-pip install "omnilimb-face[preview]"    # Edge-TTS voice + local STT for the preview
+pip install "omnilimb-face[all]"        # everything below, in one go
+pip install "omnilimb-face[stt]"        # local speech-to-text (faster-whisper) for --stt
+pip install "omnilimb-face[wakeword]"   # wake-word activation
 pip install "omnilimb-face[dev]"        # test tooling
 ```
 
@@ -140,10 +138,10 @@ generation needs the `[preview]` extra (`cryptography`).
 
 - **`http://127.0.0.1:12393/` won't open.** That's the WebSocket *gateway*, not a
   web page. Open **`http://127.0.0.1:12394/`** (gateway port **+ 1**).
-- **No sound.** Install the voice engine: `pip install edge-tts` (or
-  `pip install "omnilimb-face[all]"`). The preview prints `voice: on (edge-tts …)` when it
-  is active. You also need internet (Edge online voices) and to click/type once
-  in the page first (browser autoplay policy).
+- **No sound.** The Edge-TTS voice ships with `pip install omnilimb-face`, so this is
+  usually internet/gesture: Edge online voices need internet, and browsers only play
+  audio after you click or type once in the page. The preview prints
+  `voice: on (edge-tts …)` when the voice engine is active.
 - **I installed it but nothing happens / no avatar.** Installing only adds the
   code — you still have to START it: `omnilimb-face` (Option A) or
   `hermes vtuber start` (Option B), then open `http://127.0.0.1:12394/`.

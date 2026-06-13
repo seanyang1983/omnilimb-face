@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "omnilimb-face"
-version = "0.1.1"
+version = "0.1.2"
 description = "Open-LLM-VTuber capabilities (hands-free voice, barge-in, Live2D avatar) as a hermes-agent plugin."
 readme = "README.md"
 requires-python = ">=3.11"
@@ -37,30 +37,35 @@ dependencies = [
   # ProtocolGateway._extract_request_path), so it runs against the host's
   # websockets when installed into hermes (which ships 15.x).
   "websockets>=12.0,<16",
+  # Hands-free microphone capture + voice-activity detection (Requirements 4, 5).
+  # webrtcvad-wheels ships PREBUILT wheels (same `import webrtcvad`) so install
+  # needs no C compiler.
+  "sounddevice>=0.4.6,<0.7",
+  "webrtcvad-wheels>=2.0.10,<3",
+  "numpy>=1.24,<3",
+  # Front-end static asset serving for the avatar UI (Requirement 7).
+  "starlette>=0.37,<0.42",
+  "uvicorn>=0.30,<0.35",
+  # Keyless voice OUT: Microsoft Edge online voices, so the avatar talks without
+  # a host LLM/TTS (GPL-3.0; installed separately via pip, not bundled).
+  "edge-tts>=6.1,<8",
+  # Self-signed cert generation for `omnilimb-face --https` (lets phones on the
+  # LAN use the microphone via a secure context).
+  "cryptography>=42,<46",
 ]
 
 [project.optional-dependencies]
-# Hands-free microphone capture + voice-activity detection
-# (Requirements 4, 5, 12). Absent -> plugin registers degraded.
-voice = [
-  "sounddevice>=0.4.6,<0.7",
-  # webrtcvad-wheels: a drop-in for `webrtcvad` that ships PREBUILT wheels
-  # (same `import webrtcvad`), so installation does not require a C compiler
-  # (the original webrtcvad has no Windows wheels and fails with
-  # "Microsoft Visual C++ 14.0 or greater is required").
-  "webrtcvad-wheels>=2.0.10,<3",
-  "numpy>=1.24,<3",
+# Optional local speech-to-text for the preview's `--stt` (browser mic audio ->
+# faster-whisper). HEAVY (pulls onnxruntime / ctranslate2 / scipy, hundreds of
+# MB), so it is kept opt-in to keep the default install lean. Absent -> STT is
+# disabled (you can still TYPE to the avatar; voice OUT still works).
+stt = [
+  "faster-whisper>=1.0,<2",
 ]
 
 # Optional wake-word activation (Requirement 13). Absent -> wake-word disabled.
 wakeword = [
   "openwakeword>=0.6.0,<0.8",
-]
-
-# Front-end static asset serving for the Live2D renderer (Requirement 7).
-live2d = [
-  "starlette>=0.37,<0.42",
-  "uvicorn>=0.30,<0.35",
 ]
 
 # Test tooling: pytest for unit/integration tests, Hypothesis for the
@@ -70,30 +75,18 @@ test = [
   "hypothesis>=6.100,<7",
 ]
 
-# Standalone front-end preview (`python preview.py`): keyless Chinese/!any-language
-# speech via Microsoft Edge online voices so the avatar actually talks without a
-# host LLM/TTS. Needs internet; absent -> the preview falls back to silent
-# synthetic lip-sync.
-preview = [
-  "edge-tts>=6.1,<8",
-  "faster-whisper>=1.0,<2",
-  # Self-signed cert generation for `preview.py --https` (lets phones on the LAN
-  # use the microphone via a secure context).
-  "cryptography>=42,<46",
-]
-
 # Developer tooling (superset of `test`).
 dev = [
   "pytest>=8.0,<9",
   "hypothesis>=6.100,<7",
 ]
 
-# Everything for a fully working setup in ONE install (voice in + out, wake-word,
-# front-end serving, and the keyless Edge-TTS voice used by the preview / as the
-# fallback when the host has no text_to_speech tool). Use this if you just want
-# it all working out of the box:  pip install "omnilimb-face[all]"
+# The default `pip install omnilimb-face` is ALREADY a complete, working setup
+# (avatar + voice in/out + typed interaction). `[all]` only adds the heavier
+# OPT-IN pieces — local speech-to-text and wake-word:
+#   pip install "omnilimb-face[all]"
 all = [
-  "omnilimb-face[voice,wakeword,live2d,preview]",
+  "omnilimb-face[stt,wakeword]",
 ]
 
 # Discovered by hermes PluginManager via the `hermes_agent.plugins` entry-point
