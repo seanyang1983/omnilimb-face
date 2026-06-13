@@ -1,8 +1,24 @@
 # omnilimb-face
 
-![omnilimb-face](docs/assets/banner.svg)
+<p align="center">
+  <img src="https://cdn.jsdelivr.net/gh/seanyang1983/omnilimb-face@main/docs/assets/banner.svg" alt="omnilimb-face" width="100%" />
+</p>
 
-**English** · [中文](README.zh-CN.md)
+<p align="center">
+  <a href="https://pypi.org/project/omnilimb-face/"><img alt="PyPI" src="https://img.shields.io/pypi/v/omnilimb-face.svg?color=5b8cff"></a>
+  <a href="https://pepy.tech/project/omnilimb-face"><img alt="Downloads" src="https://static.pepy.tech/badge/omnilimb-face"></a>
+  <a href="https://github.com/seanyang1983/omnilimb-face/stargazers"><img alt="GitHub stars" src="https://img.shields.io/github/stars/seanyang1983/omnilimb-face?color=36e0c0&label=stars"></a>
+  <a href="https://github.com/seanyang1983/omnilimb-face/blob/main/LICENSE"><img alt="License: AGPL-3.0" src="https://img.shields.io/badge/License-AGPL--3.0-36e0c0.svg"></a>
+  <img alt="Python" src="https://img.shields.io/badge/Python-3.11%2B-5b8cff.svg">
+  <img alt="Avatar" src="https://img.shields.io/badge/avatar-Live2D%20%2F%20Live3D-5b8cff.svg">
+  <img alt="Voice" src="https://img.shields.io/badge/voice-VAD%20%2B%20STT%20%2B%20lip--sync-36e0c0.svg">
+  <a href="https://face.omnilimb.com"><img alt="Website" src="https://img.shields.io/badge/web-face.omnilimb.com-9aa4be.svg"></a>
+</p>
+
+<p align="center">
+  <b>English</b> · <a href="https://github.com/seanyang1983/omnilimb-face/blob/main/README.zh-CN.md">中文</a>
+  &nbsp;|&nbsp; 🌐 <a href="https://face.omnilimb.com">face.omnilimb.com</a>
+</p>
 
 A standalone, installable [hermes-agent](https://github.com/NousResearch) plugin
 that gives your agent a **face and a voice**: hands-free voice interaction
