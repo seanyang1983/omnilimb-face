@@ -91,9 +91,9 @@ hermes 核心文件**。
 
 **方式 A —— 一分钟预览(无需 hermes):**
 ```bash
-pip install -e ".[all]"          # ① 一次装齐所有依赖(含 Edge-TTS 语音,能出声)
-python preview.py                # ② 启动(同时提供网页 + 网关)
-#                                  ③ 浏览器打开  http://127.0.0.1:12394/   (不是 12393!)
+pip install "omnilimb-face[all]"   # ① 一条命令装齐所有依赖(含 Edge-TTS 语音,能出声)
+omnilimb-face                      # ② 启动:同时提供网页 + 网关,并自动打开浏览器
+#                                    ③ (没自动打开就)访问  http://127.0.0.1:12394/   (不是 12393!)
 ```
 
 **方式 B —— 完整形态(在 hermes 里聊天):**

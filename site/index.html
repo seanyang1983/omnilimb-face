@@ -93,14 +93,14 @@
     <p class="blk" data-en><b>A. 1-minute preview</b> (no hermes-agent needed):</p>
     <p class="blk" data-zh><b>A. 一分钟预览</b>(无需 hermes-agent):</p>
 <pre><code># 1) install EVERYTHING in one command (incl. voice, so you hear it)
-pip install -e ".[all]"
-# 2) start it (serves the web page + gateway)
-python preview.py
+pip install "omnilimb-face[all]"
+# 2) start it — one command serves the page + gateway and opens the browser
+omnilimb-face
 # 3) open the PAGE:  http://127.0.0.1:12394/     (NOT 12393)</code></pre>
     <p class="blk" data-en><b>B. Full product</b> — chat in hermes, the avatar speaks the real replies:</p>
     <p class="blk" data-zh><b>B. 完整形态</b> —— 在 hermes 里聊天,形象说出真实回复:</p>
 <pre><code># 1) install into the hermes venv, everything in one command
-&lt;hermes-venv&gt;/python -m pip install -e "path/to/omnilimb-face[all]"
+&lt;hermes-venv&gt;/python -m pip install "omnilimb-face[all]"
 # 2) enable it: add `omnilimb-face` to plugins.enabled in ~/.hermes/config.yaml
 # 3) run hermes (starts gateway 12393 + front-end 12394)
 hermes

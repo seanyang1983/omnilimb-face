@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "omnilimb-face"
-version = "0.1.0"
+version = "0.1.1"
 description = "Open-LLM-VTuber capabilities (hands-free voice, barge-in, Live2D avatar) as a hermes-agent plugin."
 readme = "README.md"
 requires-python = ">=3.11"
@@ -103,6 +103,13 @@ all = [
 [project.entry-points."hermes_agent.plugins"]
 omnilimb-face = "omnilimb_face.plugin"
 
+# One-command standalone preview: after `pip install "omnilimb-face[all]"`, the
+# `omnilimb-face` command launches the front-end + /client-ws gateway and opens
+# the browser — no source checkout needed. Same args as the old `python
+# preview.py` (e.g. `omnilimb-face --no-browser`, `omnilimb-face --lan --https`).
+[project.scripts]
+omnilimb-face = "omnilimb_face.preview:main"
+
 [project.urls]
 Homepage = "https://github.com/seanyang1983/omnilimb-face"
 Repository = "https://github.com/seanyang1983/omnilimb-face"
@@ -132,6 +139,9 @@ omnilimb_face = [
   "frontend/*.js",
   "frontend/*.css",
   "frontend/*.md",
+  # Live2D model dictionary, so the `omnilimb-face` preview command renders the
+  # reference avatar (loaded from CDN) without a source checkout.
+  "models/*.json",
 ]
 
 [tool.pytest.ini_options]

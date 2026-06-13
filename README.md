@@ -33,7 +33,7 @@ expressions; you type (or talk) in the dialog box below.
 
 ![omnilimb-face demo](docs/assets/demo.gif)
 
-> The animation above is a synthetic preview (`python preview.py`); a still frame
+> The animation above is a synthetic preview (`omnilimb-face`); a still frame
 > is in [`docs/assets/screenshot.png`](docs/assets/screenshot.png).
 > Avatar: Live2D Cubism sample **"Mao" © Live2D Inc.** (loaded from CDN, not
 > bundled — see [Credits](#credits--third-party-licensing)).
@@ -67,10 +67,10 @@ Requires **Python 3.11+**. Pick one of the two paths below — each is step by s
 
 ```bash
 # 1) install EVERYTHING in one command (incl. the Edge-TTS voice, so you HEAR it)
-pip install -e ".[all]"
-# 2) start the preview (it serves the web page AND the gateway)
-python preview.py
-# 3) open the PAGE in your browser:
+pip install "omnilimb-face[all]"
+# 2) start it — ONE command serves the web page + gateway and opens your browser
+omnilimb-face
+# 3) (if the browser didn't open) go to:
 #       http://127.0.0.1:12394/      <-- the web page
 ```
 
@@ -80,14 +80,14 @@ Type in the page and the avatar replies in Chinese voice with lip-sync + express
 > ⚠️ **The page is on port 12394, not 12393.** Port **12393** is the WebSocket
 > *gateway* (`ws://…/client-ws`); opening `http://127.0.0.1:12393/` in a browser
 > will NOT work. The page lives on `gateway port + 1` = **12394**. (In single-port
-> mode — `python preview.py --single-port` / `--https` — the page and gateway
+> mode — `omnilimb-face --single-port` / `--https` — the page and gateway
 > share 12393.)
 
 ### Option B — full product (chat in hermes, the avatar speaks the real replies)
 
 ```bash
 # 1) install into the hermes venv, everything included, in ONE command
-<hermes-venv>/python -m pip install -e "path/to/omnilimb-face[all]"
+<hermes-venv>/python -m pip install "omnilimb-face[all]"
 # 2) enable it: add `omnilimb-face` to plugins.enabled in ~/.hermes/config.yaml
 # 3) run hermes — it starts the gateway (12393) + front-end (12394)
 hermes
@@ -108,11 +108,11 @@ install only the pieces you need — the **core** install runs in a *degraded* s
 without them (it still registers and its tools stay visible in `hermes tools`):
 
 ```bash
-pip install -e ".[voice]"      # microphone capture + VAD (hands-free)
-pip install -e ".[wakeword]"   # optional wake-word activation
-pip install -e ".[live2d]"     # front-end static serving
-pip install -e ".[preview]"    # Edge-TTS voice + local STT for `preview.py`
-pip install -e ".[dev]"        # test tooling
+pip install "omnilimb-face[voice]"      # microphone capture + VAD (hands-free)
+pip install "omnilimb-face[wakeword]"   # optional wake-word activation
+pip install "omnilimb-face[live2d]"     # front-end static serving
+pip install "omnilimb-face[preview]"    # Edge-TTS voice + local STT for the preview
+pip install "omnilimb-face[dev]"        # test tooling
 ```
 
 ### Enabling in hermes
@@ -128,7 +128,7 @@ microphone access from a secure context, the preview can serve over **HTTPS with
 a self-signed certificate** on your LAN:
 
 ```bash
-python preview.py --lan --https          # HTTPS on your LAN IP (single port 12393)
+omnilimb-face --lan --https              # HTTPS on your LAN IP (single port 12393)
 # or use start.bat options 3 / 4 (LAN HTTPS, optionally with --llm --stt)
 ```
 
@@ -141,11 +141,11 @@ generation needs the `[preview]` extra (`cryptography`).
 - **`http://127.0.0.1:12393/` won't open.** That's the WebSocket *gateway*, not a
   web page. Open **`http://127.0.0.1:12394/`** (gateway port **+ 1**).
 - **No sound.** Install the voice engine: `pip install edge-tts` (or
-  `pip install -e ".[all]"`). The preview prints `voice: on (edge-tts …)` when it
+  `pip install "omnilimb-face[all]"`). The preview prints `voice: on (edge-tts …)` when it
   is active. You also need internet (Edge online voices) and to click/type once
   in the page first (browser autoplay policy).
 - **I installed it but nothing happens / no avatar.** Installing only adds the
-  code — you still have to START it: `python preview.py` (Option A) or
+  code — you still have to START it: `omnilimb-face` (Option A) or
   `hermes vtuber start` (Option B), then open `http://127.0.0.1:12394/`.
 - **Avatar doesn't appear.** The Live2D model loads from CDN — check your
   internet. Offline, it falls back to a dependency-free canvas placeholder.
