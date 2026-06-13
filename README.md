@@ -43,60 +43,67 @@ real answer.
 
 ![architecture](docs/assets/architecture.svg)
 
-## Install
+## Getting started
 
-Requires Python 3.11+.
+Requires **Python 3.11+**. Pick one of the two paths below — each is step by step.
+
+### Option A — 1-minute preview (no hermes-agent needed)
 
 ```bash
-# From the plugin directory, in a virtual environment:
-pip install -e ".[dev]"        # core + test tooling
-pip install -e ".[voice]"      # add microphone capture + VAD
-pip install -e ".[wakeword]"   # add optional wake-word activation
-pip install -e ".[live2d]"     # add front-end static serving
+# 1) install EVERYTHING in one command (incl. the Edge-TTS voice, so you HEAR it)
+pip install -e ".[all]"
+# 2) start the preview (it serves the web page AND the gateway)
+python preview.py
+# 3) open the PAGE in your browser:
+#       http://127.0.0.1:12394/      <-- the web page
 ```
 
-The **core** install deliberately excludes the voice/Live2D packages. When those
-optional extras are missing the plugin still registers in a *degraded* state and
-its tools stay visible in `hermes tools`.
+Type in the page and the avatar replies in Chinese voice with lip-sync + expressions.
+(Click or type once first — browsers only allow audio after a user gesture.)
 
-### Enabling
+> ⚠️ **The page is on port 12394, not 12393.** Port **12393** is the WebSocket
+> *gateway* (`ws://…/client-ws`); opening `http://127.0.0.1:12393/` in a browser
+> will NOT work. The page lives on `gateway port + 1` = **12394**. (In single-port
+> mode — `python preview.py --single-port` / `--https` — the page and gateway
+> share 12393.)
+
+### Option B — full product (chat in hermes, the avatar speaks the real replies)
+
+```bash
+# 1) install into the hermes venv, everything included, in ONE command
+<hermes-venv>/python -m pip install -e "path/to/omnilimb-face[all]"
+# 2) enable it: add `omnilimb-face` to plugins.enabled in ~/.hermes/config.yaml
+# 3) run hermes — it starts the gateway (12393) + front-end (12394)
+hermes
+hermes vtuber status                 # check the avatar subsystem came up
+# 4) open http://127.0.0.1:12394/ , then chat in the hermes terminal —
+#    the avatar speaks each reply with lip-sync + expressions.
+```
+
+Speech uses the host `text_to_speech` tool when present, else the keyless Edge-TTS
+fallback (Chinese voice by default; set `tts.<provider>.voice` to an Edge
+`*Neural` voice to change it). The `/client-ws` gateway works with websockets
+12.x and 13–15.x.
+
+### Smaller installs (optional)
+
+`[all]` pulls everything for a working setup. If you want a smaller footprint,
+install only the pieces you need — the **core** install runs in a *degraded* state
+without them (it still registers and its tools stay visible in `hermes tools`):
+
+```bash
+pip install -e ".[voice]"      # microphone capture + VAD (hands-free)
+pip install -e ".[wakeword]"   # optional wake-word activation
+pip install -e ".[live2d]"     # front-end static serving
+pip install -e ".[preview]"    # Edge-TTS voice + local STT for `preview.py`
+pip install -e ".[dev]"        # test tooling
+```
+
+### Enabling in hermes
 
 Discovered via the `hermes_agent.plugins` pip entry point, or by placing the
 directory at `~/AppData/Local/hermes/plugins/omnilimb-face/`. Enable it by adding
 `omnilimb-face` to `plugins.enabled` in `config.yaml`.
-
-### Full product: chat in hermes, the avatar speaks the agent's replies
-
-```bash
-# 1. install the plugin into the hermes venv (editable; no dependency changes)
-<hermes-venv>/python -m pip install -e path/to/omnilimb-face --no-deps
-# 2. voice backend: hermes has no text_to_speech tool, so the plugin uses a
-#    keyless Edge-TTS fallback. Install it into the hermes venv:
-<hermes-venv>/python -m pip install edge-tts
-# 3. enable the plugin: add `omnilimb-face` to plugins.enabled in
-#    ~/.hermes/config.yaml
-# 4. run hermes; it starts the /client-ws gateway (12393) + front-end (12394)
-hermes
-hermes vtuber status      # check the avatar subsystem came up
-# 5. open http://127.0.0.1:12394/ in a browser, then chat in the hermes
-#    terminal — the avatar speaks each reply.
-```
-
-Speech uses the host `text_to_speech` tool when present, else the Edge-TTS
-fallback (Chinese voice by default; configurable via `tts.<provider>.voice` when
-it is an Edge `*Neural` voice). The `/client-ws` gateway is compatible with both
-websockets 12.x and 13–15.x.
-
-### Preview the avatar (no hermes-agent needed)
-
-```bash
-python preview.py            # serves the front-end + /client-ws gateway, opens a browser
-```
-
-It opens http://127.0.0.1:12394/ and loads the reference model; typing drives a
-synthetic lip-sync + expression demo (no real TTS audio). For the full voice +
-avatar experience, enable the plugin and run `hermes vtuber start`. See
-`omnilimb_face/frontend/README.md` for details and how to swap in your own model.
 
 ### Mobile (phone) support
 
@@ -112,6 +119,20 @@ python preview.py --lan --https          # HTTPS on your LAN IP (single port 123
 Then open `https://<your-LAN-IP>:12393/` on the phone (same Wi-Fi) and accept the
 self-signed certificate warning once — after that the mobile mic works. Cert
 generation needs the `[preview]` extra (`cryptography`).
+
+## Troubleshooting
+
+- **`http://127.0.0.1:12393/` won't open.** That's the WebSocket *gateway*, not a
+  web page. Open **`http://127.0.0.1:12394/`** (gateway port **+ 1**).
+- **No sound.** Install the voice engine: `pip install edge-tts` (or
+  `pip install -e ".[all]"`). The preview prints `voice: on (edge-tts …)` when it
+  is active. You also need internet (Edge online voices) and to click/type once
+  in the page first (browser autoplay policy).
+- **I installed it but nothing happens / no avatar.** Installing only adds the
+  code — you still have to START it: `python preview.py` (Option A) or
+  `hermes vtuber start` (Option B), then open `http://127.0.0.1:12394/`.
+- **Avatar doesn't appear.** The Live2D model loads from CDN — check your
+  internet. Offline, it falls back to a dependency-free canvas placeholder.
 
 ## Layout
 

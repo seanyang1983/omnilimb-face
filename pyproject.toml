@@ -84,6 +84,14 @@ dev = [
   "hypothesis>=6.100,<7",
 ]
 
+# Everything for a fully working setup in ONE install (voice in + out, wake-word,
+# front-end serving, and the keyless Edge-TTS voice used by the preview / as the
+# fallback when the host has no text_to_speech tool). Use this if you just want
+# it all working out of the box:  pip install "omnilimb-face[all]"
+all = [
+  "omnilimb-face[voice,wakeword,live2d,preview]",
+]
+
 # Discovered by hermes PluginManager via the `hermes_agent.plugins` entry-point
 # group (confirmed in hermes_cli/plugins.py: ENTRY_POINTS_GROUP). The value
 # resolves to a module exposing `register`, which the host loads via
