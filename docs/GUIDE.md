@@ -85,35 +85,62 @@ hermes 核心文件**。
 
 ## 3. 安装
 
-要求 **Python 3.11+**。三种安装方式任选其一:
+要求 **Python 3.11+**。
 
-### A. pip 安装(进入 hermes 的 venv)
+### 最快上手(一条命令装齐 + 分步)
+
+**方式 A —— 一分钟预览(无需 hermes):**
+```bash
+pip install -e ".[all]"          # ① 一次装齐所有依赖(含 Edge-TTS 语音,能出声)
+python preview.py                # ② 启动(同时提供网页 + 网关)
+#                                  ③ 浏览器打开  http://127.0.0.1:12394/   (不是 12393!)
+```
+
+**方式 B —— 完整形态(在 hermes 里聊天):**
+```bash
+<hermes-venv>/python -m pip install -e "path/to/omnilimb-face[all]"   # ① 装进 hermes venv
+# ② 在 ~/.hermes/config.yaml 的 plugins.enabled 里加 `omnilimb-face`
+hermes                           # ③ 运行 hermes(自动起网关 12393 + 前端 12394)
+hermes vtuber status             #    检查子系统
+#                                  ④ 打开 http://127.0.0.1:12394/ ,在终端聊天
+```
+
+> ⚠️ 网页在 **12394**;**12393** 是 WebSocket 网关,用浏览器直接开 12393 **打不开**。
+> 没声音 → 多半没装 `edge-tts`(`[all]` 已含;或单独 `pip install edge-tts`),且需联网 +
+> 先点一下页面(浏览器自动播放限制)。详见 §10。
+
+### 其它安装方式
+
+#### A. pip 安装(进入 hermes 的 venv)
 ```bash
 <hermes-venv>/python -m pip install -e path/to/omnilimb-face --no-deps
 ```
 
-### B. 可编辑安装(开发)
+#### B. 可编辑安装(开发)
 ```bash
 pip install -e ".[dev]"        # 核心 + 测试工具
 ```
 
-### C. 目录插件
+#### C. 目录插件
 把整个 `omnilimb-face/` 文件夹放到 `~/.hermes/plugins/omnilimb-face/`(需含 `plugin.yaml` + 根 `__init__.py`)。
 
 ### 可选依赖(extras)
 | extra | 增加的能力 | 缺失时 |
 |---|---|---|
+| **`all`** | **一次装齐下面全部**(voice + wakeword + live2d + preview) | —— 推荐普通用户用这个 |
 | `voice` | 麦克风采集 + VAD(sounddevice / webrtcvad / numpy) | 免提不可用,文字仍可用 |
 | `wakeword` | 唤醒词激活(openwakeword) | 唤醒词禁用 |
 | `live2d` | 基于 starlette/uvicorn 的前端服务(可选;核心用 stdlib 也能serve) | 用 stdlib `http.server` 兜底 |
-| `preview` | 独立预览的 edge-tts + faster-whisper | 预览退化为静音合成口型 |
+| `preview` | 独立预览的 edge-tts(语音) + faster-whisper | 预览退化为静音合成口型(**没声音**) |
 | `test` / `dev` | pytest + hypothesis | — |
 
 ```bash
-pip install -e ".[voice]"      # 例:加上麦克风采集
+pip install -e ".[all]"        # 推荐:一次装齐
+pip install -e ".[voice]"      # 或:只加麦克风采集
 ```
 
-> **核心安装刻意不拉取** voice / Live2D 栈,以保证缺失时仍能以**降级**状态注册。
+> **核心安装刻意不拉取** voice / Live2D 栈,以保证缺失时仍能以**降级**状态注册;
+> 想要开箱即用(含声音)就用 `".[all]"`。
 
 ---
 
@@ -355,6 +382,9 @@ python preview.py --no-browser --llm --stt --lan --https
 
 | 现象 | 原因 / 解决 |
 |---|---|
+| **`http://127.0.0.1:12393/` 打不开** | 12393 是 WebSocket **网关**,不是网页。请开 **`http://127.0.0.1:12394/`**(网关端口 **+1**)。单端口模式(`--single-port`/`--https`)下网页才在 12393。 |
+| **没有声音** | 没装语音引擎。`pip install edge-tts`(或 `pip install -e ".[all]"`);预览显示 `voice: on (edge-tts …)` 才算启用。另需联网(Edge 在线语音)+ 先在页面点一下/打字(浏览器自动播放限制)。 |
+| **装完没反应 / 看不到形象** | 安装只装代码,还要**启动**:`python preview.py`(方式 A)或 `hermes vtuber start`(方式 B),再开 `http://127.0.0.1:12394/`。 |
 | 页面一直「连接中…」、形象空白 | 多半是**代理 / VPN / 加速器**拦了本地 WebSocket(网关回 426)。把 `127.0.0.1` 和 `localhost` 加入代理的「绕过/直连」,或临时关代理后 **Ctrl+Shift+R** 硬刷新。 |
 | 改了前端却没生效 | 前端服务发的是 `no-store` 头,但浏览器/页面可能缓存;**Ctrl+Shift+R** 硬刷新。 |
 | `/handsfree on` 提示不可用 | 缺 `[voice]` 依赖或没枚举到麦克风。装 `pip install -e ".[voice]"`;文字与形象不受影响。 |
@@ -420,5 +450,7 @@ omnilimb-face/
 
 ## 许可
 
-MIT。前端运行时从 CDN 加载 Live2D Cubism Core(专有,未打包)与 three.js / three-vrm;
-离线或加载失败时自动降级到无依赖的占位渲染。
+以 **AGPL-3.0-or-later** 发布,另提供**商业双授权**(闭源/专有商用见
+[`COMMERCIAL-LICENSE.md`](../COMMERCIAL-LICENSE.md),联系 yase19636404@163.com)。
+前端运行时从 CDN 加载 Live2D Cubism Core(专有,未打包)与 three.js / three-vrm;
+离线或加载失败时自动降级到无依赖的占位渲染。详见仓库根的 `LICENSE` / `NOTICE.md`。
