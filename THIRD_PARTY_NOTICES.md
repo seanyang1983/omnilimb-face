@@ -17,7 +17,7 @@ This file is informational and is not legal advice.
 |---------|-------|---------|----------|-------|
 | `websockets` | core | BSD-3-Clause | No (pip) | `/client-ws` gateway transport. |
 | `sounddevice` | `[voice]` | MIT | No (pip) | Microphone capture (PortAudio binding). |
-| `webrtcvad` | `[voice]` | MIT (wrapper) / BSD-3-Clause (WebRTC) | No (pip) | Voice-activity detection. |
+| `webrtcvad-wheels` | `[voice]` | MIT (wrapper) / BSD-3-Clause (WebRTC) | No (pip) | Voice-activity detection (prebuilt-wheel drop-in for `webrtcvad`; same `import webrtcvad`). |
 | `numpy` | `[voice]` | BSD-3-Clause | No (pip) | Audio buffer math. |
 | `openwakeword` | `[wakeword]` | Apache-2.0 (library) | No (pip) | **Pre-trained models are CC-BY-NC-SA-4.0 (NonCommercial)** — see below. |
 | `starlette` | `[live2d]` | BSD-3-Clause | No (pip) | Front-end static serving. |

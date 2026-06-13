@@ -44,7 +44,11 @@ dependencies = [
 # (Requirements 4, 5, 12). Absent -> plugin registers degraded.
 voice = [
   "sounddevice>=0.4.6,<0.7",
-  "webrtcvad>=2.0.10,<3",
+  # webrtcvad-wheels: a drop-in for `webrtcvad` that ships PREBUILT wheels
+  # (same `import webrtcvad`), so installation does not require a C compiler
+  # (the original webrtcvad has no Windows wheels and fails with
+  # "Microsoft Visual C++ 14.0 or greater is required").
+  "webrtcvad-wheels>=2.0.10,<3",
   "numpy>=1.24,<3",
 ]
 
